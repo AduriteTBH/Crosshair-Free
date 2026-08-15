@@ -1,0 +1,228 @@
+<Window x:Class="CrosshairFree.Views.ColorPickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Custom Color Picker — Crosshair Free"
+        Width="430" Height="495"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        FontFamily="Segoe UI Variable Display, Segoe UI, Inter, Arial">
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="RootCard" Storyboard.TargetProperty="Opacity" From="0.85" To="1.0" Duration="0:0:0.15"/>
+                    <DoubleAnimation Storyboard.TargetName="RootCardTransform" Storyboard.TargetProperty="Y" From="8" To="0" Duration="0:0:0.15">
+                        <DoubleAnimation.EasingFunction>
+                            <QuadraticEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Border x:Name="RootCard" Background="#16161A" BorderBrush="#2E2E38" BorderThickness="1.5" CornerRadius="10" Padding="20">
+        <Border.RenderTransform>
+            <TranslateTransform x:Name="RootCardTransform" Y="0"/>
+        </Border.RenderTransform>
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.55" Color="#000000"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Grid Grid.Row="0" Margin="0,0,0,14">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="M 12 2 C 6.49 2 2 6.49 2 12 C 2 17.51 6.49 22 12 22 C 13.1 22 14 21.1 14 20 C 14 19.5 13.8 19.04 13.48 18.67 C 13.17 18.31 12.98 17.85 12.98 17.33 C 12.98 16.22 13.88 15.33 15 15.33 L 17 15.33 C 19.76 15.33 22 13.09 22 10.33 C 22 5.73 17.52 2 12 2 Z M 6.5 11.5 C 5.67 11.5 5 10.83 5 10 C 5 9.17 5.67 8.5 6.5 8.5 C 7.33 8.5 8 9.17 8 10 C 8 10.83 7.33 11.5 6.5 11.5 Z M 9.5 7.5 C 8.67 7.5 8 6.83 8 6 C 8 5.17 8.67 4.5 9.5 4.5 C 10.33 4.5 11 5.17 11 6 C 11 6.83 10.33 7.5 9.5 7.5 Z M 14.5 7.5 C 13.67 7.5 13 6.83 13 6 C 13 5.17 13.67 4.5 14.5 4.5 C 15.33 4.5 16 5.17 16 6 C 16 6.83 15.33 7.5 14.5 7.5 Z M 17.5 11.5 C 16.67 11.5 16 10.83 16 10 C 16 9.17 16.67 8.5 17.5 8.5 C 18.33 8.5 19 9.17 19 10 C 19 10.83 18.33 11.5 17.5 11.5 Z"
+                          Fill="#60CDFF" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Custom Crosshair Color" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- PURE WHITE CLOSE BUTTON -->
+                <Button Content="✕" Width="26" Height="26" HorizontalAlignment="Right" Background="#24242C" BorderBrush="#33333E" Foreground="#FFFFFF" FontWeight="Black" FontSize="11" Cursor="Hand" Click="Cancel_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="CloseBg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="CloseBg" Property="Background" Value="#EF4444"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- MIDDLE: RAINBOW SPECTRUM & HUE SLIDER -->
+            <StackPanel Grid.Row="1">
+                <!-- 2D Color Canvas -->
+                <Border Height="140" CornerRadius="6" ClipToBounds="True" BorderBrush="#2E2E38" BorderThickness="1" Margin="0,0,0,10" Cursor="Cross">
+                    <Grid x:Name="SpectrumCanvas" MouseLeftButtonDown="Spectrum_MouseDown" MouseMove="Spectrum_MouseMove">
+                        <Rectangle x:Name="RectHueBase">
+                            <Rectangle.Fill>
+                                <SolidColorBrush x:Name="BrushHueBase" Color="#FF0000"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <!-- White horizontal gradient -->
+                        <Rectangle>
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                    <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <!-- Black vertical gradient -->
+                        <Rectangle>
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#00000000" Offset="0.0"/>
+                                    <GradientStop Color="#FF000000" Offset="1.0"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <!-- Selection Indicator -->
+                        <Canvas>
+                            <Ellipse x:Name="IndicatorDot" Width="12" Height="12" Stroke="#FFFFFF" StrokeThickness="2" Canvas.Left="100" Canvas.Top="50">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="3" ShadowDepth="1" Color="#000000"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Canvas>
+                    </Grid>
+                </Border>
+
+                <!-- Hue Slider -->
+                <Grid Margin="0,0,0,14">
+                    <Border Height="14" CornerRadius="7" ClipToBounds="True">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FF0000" Offset="0.0"/>
+                                <GradientStop Color="#FFFF00" Offset="0.17"/>
+                                <GradientStop Color="#00FF00" Offset="0.33"/>
+                                <GradientStop Color="#00FFFF" Offset="0.50"/>
+                                <GradientStop Color="#0000FF" Offset="0.67"/>
+                                <GradientStop Color="#FF00FF" Offset="0.83"/>
+                                <GradientStop Color="#FF0000" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                    <Slider x:Name="SliderHue" Minimum="0" Maximum="360" Value="0" Margin="0,-4,0,-4" ValueChanged="SliderHue_ValueChanged">
+                        <Slider.Template>
+                            <ControlTemplate TargetType="Slider">
+                                <Track x:Name="PART_Track">
+                                    <Track.Thumb>
+                                        <Thumb>
+                                            <Thumb.Template>
+                                                <ControlTemplate TargetType="Thumb">
+                                                    <Ellipse Width="16" Height="16" Fill="#FFFFFF" Stroke="#333333" StrokeThickness="1.5">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.4" Color="#000000"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </ControlTemplate>
+                                            </Thumb.Template>
+                                        </Thumb>
+                                    </Track.Thumb>
+                                </Track>
+                            </ControlTemplate>
+                        </Slider.Template>
+                    </Slider>
+                </Grid>
+
+                <!-- PRESET ESPORTS PALETTE -->
+                <TextBlock Text="Pro Esports Presets:" FontSize="11" FontWeight="Bold" Foreground="#8E8E98" Margin="0,0,0,6"/>
+                <WrapPanel Margin="0,0,0,10">
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#00FF88" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#00E5FF" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#00F576" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#38BDF8" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#FF3366" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#FF2600" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#FFDD00" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#A855F7" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#FFFFFF" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#F43F5E" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#EAB308" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                    <Border Width="24" Height="24" CornerRadius="4" Background="#06B6D4" Margin="0,0,6,6" Cursor="Hand" MouseLeftButtonUp="Preset_Click"/>
+                </WrapPanel>
+            </StackPanel>
+
+            <!-- HEX / PREVIEW ROW -->
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Hex Color Code:" FontSize="11" FontWeight="Bold" Foreground="#8E8E98" Margin="0,0,0,4"/>
+                    <TextBox x:Name="TxtHexInput" Text="#00FF88" Width="140" HorizontalAlignment="Left" Background="#1E1E24" Foreground="#FFFFFF" BorderBrush="#2E2E38" Padding="8,5" FontSize="13" FontWeight="Bold" TextChanged="TxtHexInput_TextChanged"/>
+                </StackPanel>
+
+                <!-- Live Color Swatch -->
+                <Border Grid.Column="1" Width="74" Height="44" CornerRadius="6" BorderBrush="#33333E" BorderThickness="1" VerticalAlignment="Center">
+                    <Border x:Name="SwatchPreview" Background="#00FF88" CornerRadius="5"/>
+                </Border>
+            </Grid>
+
+            <!-- ACTIONS BOTTOM -->
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Cancel" Margin="0,0,6,0" Height="38" Background="#1E1E24" BorderBrush="#2E2E38" Foreground="#A0A0B0" FontWeight="Bold" FontSize="12" Cursor="Hand" Click="Cancel_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="CancelBg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="CancelBg" Property="Background" Value="#282832"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <Button Grid.Column="1" Content="Apply Color" Margin="6,0,0,0" Height="38" Background="#0084FF" Foreground="#FFFFFF" FontWeight="Bold" FontSize="12" Cursor="Hand" Click="Apply_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="ApplyBg" Background="{TemplateBinding Background}" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ApplyBg" Property="Background" Value="#0070D8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="ApplyBg" Property="Background" Value="#005CBF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+        </Grid>
+    </Border>
+</Window>

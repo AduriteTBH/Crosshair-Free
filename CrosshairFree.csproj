@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>false</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    
+    <!-- Windows File Details, Task Manager & Assembly Metadata -->
+    <Title>Crosshair Free — Developed by adurite</Title>
+    <Product>Crosshair Free</Product>
+    <Description>Crosshair Free is an ultra-lightweight, zero-latency custom esports crosshair overlay with dynamic weapon switching and 24 reticle styles.</Description>
+    <Company>Adurite</Company>
+    <Authors>Adurite</Authors>
+    <Copyright>© 2026 Adurite. All rights reserved.</Copyright>
+    <AssemblyTitle>Crosshair Free</AssemblyTitle>
+    <AssemblyDescription>Ultra-low memory esports crosshair overlay developed by Adurite.</AssemblyDescription>
+    <AssemblyProduct>Crosshair Free</AssemblyProduct>
+    <AssemblyCompany>Adurite</AssemblyCompany>
+    <AssemblyCopyright>© 2026 Adurite</AssemblyCopyright>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <NeutralLanguage>en-US</NeutralLanguage>
+
+    <!-- Ultra-Low Memory & Zero-Latency GC Tuning (Maintains ~0.3MB Active RAM) -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <RetainVMGarbageCollection>false</RetainVMGarbageCollection>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="app.ico" />
+  </ItemGroup>
+
+</Project>

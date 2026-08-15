@@ -1,0 +1,233 @@
+<Window x:Class="CrosshairFree.Views.KeySettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Key Settings — Crosshair Free"
+        Width="490" Height="530"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        FontFamily="Segoe UI Variable Display, Segoe UI, Inter, Arial">
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="RootKeyCard" Storyboard.TargetProperty="Opacity" From="0.85" To="1.0" Duration="0:0:0.15"/>
+                    <DoubleAnimation Storyboard.TargetName="RootKeyCardTransform" Storyboard.TargetProperty="Y" From="8" To="0" Duration="0:0:0.15">
+                        <DoubleAnimation.EasingFunction>
+                            <QuadraticEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Border x:Name="RootKeyCard" Background="#16161A" BorderBrush="#2E2E38" BorderThickness="1.5" CornerRadius="10" Padding="20">
+        <Border.RenderTransform>
+            <TranslateTransform x:Name="RootKeyCardTransform" Y="0"/>
+        </Border.RenderTransform>
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.55" Color="#000000"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Keyboard Vector Icon -->
+                    <Border Width="22" Height="22" Background="#1E1E26" BorderBrush="#333342" BorderThickness="1" CornerRadius="5" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Rectangle Width="14" Height="10" Stroke="#00E5FF" StrokeThickness="1" RadiusX="1" RadiusY="1"/>
+                            <Rectangle Width="2" Height="1.5" Fill="#00E5FF" Margin="-4,-2,0,0"/>
+                            <Rectangle Width="2" Height="1.5" Fill="#00E5FF" Margin="4,-2,0,0"/>
+                            <Rectangle Width="6" Height="1" Fill="#00E5FF" Margin="0,3,0,0"/>
+                        </Grid>
+                    </Border>
+                    <TextBlock Text="Keybinds &amp; Weapon Triggers" FontSize="14" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- PURE WHITE CLOSE BUTTON -->
+                <Button Content="✕" Width="26" Height="26" HorizontalAlignment="Right" Background="#24242C" BorderBrush="#33333E" Foreground="#FFFFFF" FontWeight="Black" FontSize="11" Cursor="Hand" Click="Cancel_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="CloseBg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="CloseBg" Property="Background" Value="#EF4444"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+            <!-- CONTENT BODY (WITH CUSTOM DARK SCROLLBAR) -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                <StackPanel>
+                    
+                    <!-- 1. AR SECTION -->
+                    <Border Background="#1A1A20" BorderBrush="#282832" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="#1A2234" BorderBrush="#2A3854" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                                        <TextBlock Text="AR" FontWeight="Black" Foreground="#60CDFF" FontSize="10"/>
+                                    </Border>
+                                    <TextBlock Text="Assault Rifle Triggers" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Button x:Name="BtnAddArKey" Content="+ Add Key" HorizontalAlignment="Right" Padding="10,4" Background="#24242E" BorderBrush="#383848" Foreground="#60CDFF" FontWeight="Bold" FontSize="11" Cursor="Hand" Click="BtnAddArKey_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="AddBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="AddBorder" Property="Background" Value="#0084FF"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+
+                            <TextBlock Text="Pressing any of these keys switches crosshair to AR:" FontSize="10" Foreground="#8E8E98" Margin="0,0,0,8"/>
+                            <WrapPanel x:Name="PanelArKeys" Margin="0,0,0,2"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 2. SHOTGUN SECTION -->
+                    <Border Background="#1A1A20" BorderBrush="#282832" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,12">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border Background="#2C1A22" BorderBrush="#4A2230" BorderThickness="1" CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                                        <TextBlock Text="SHOTGUN" FontWeight="Black" Foreground="#FF5E86" FontSize="10"/>
+                                    </Border>
+                                    <TextBlock Text="Shotgun Triggers" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Button x:Name="BtnAddShotgunKey" Content="+ Add Key" HorizontalAlignment="Right" Padding="10,4" Background="#24242E" BorderBrush="#383848" Foreground="#FF5E86" FontWeight="Bold" FontSize="11" Cursor="Hand" Click="BtnAddShotgunKey_Click">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="AddBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="AddBorder" Property="Background" Value="#FF2600"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+
+                            <TextBlock Text="Pressing any of these keys switches crosshair to Shotgun:" FontSize="10" Foreground="#8E8E98" Margin="0,0,0,8"/>
+                            <WrapPanel x:Name="PanelShotgunKeys" Margin="0,0,0,2"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 3. TOGGLE HOTKEY SECTION -->
+                    <Border Background="#1A1A20" BorderBrush="#282832" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="0,0,0,12">
+                        <Grid>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Show / Hide Overlay Toggle Key" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                <TextBlock Text="Default hotkey is F8 (press to toggle crosshair visibility)" FontSize="10" Foreground="#8E8E98" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <Button x:Name="BtnToggleHotkey" Content="F8" HorizontalAlignment="Right" Width="64" Height="30" Background="#24242E" BorderBrush="#383848" Foreground="#FFFFFF" FontWeight="Black" FontSize="11" Cursor="Hand" Click="BtnToggleHotkey_Click">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="TogBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="5">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="TogBorder" Property="Background" Value="#0084FF"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- BOTTOM ACTIONS -->
+            <Grid Grid.Row="2" Margin="0,14,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Reset Defaults" Padding="14,0" Height="38" Background="#1E1E24" BorderBrush="#2E2E38" Foreground="#8E8E98" FontWeight="Bold" FontSize="11" Cursor="Hand" Click="ResetDefaults_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="ResetBg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ResetBg" Property="Background" Value="#282832"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <Button Grid.Column="1" Content="Cancel" Margin="10,0,6,0" Height="38" Background="#1E1E24" BorderBrush="#2E2E38" Foreground="#A0A0B0" FontWeight="Bold" FontSize="12" Cursor="Hand" Click="Cancel_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="CancelBg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="CancelBg" Property="Background" Value="#282832"/>
+                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <Button Grid.Column="2" Content="Save Keybinds" Margin="6,0,0,0" Height="38" Background="#0084FF" Foreground="#FFFFFF" FontWeight="Bold" FontSize="12" Cursor="Hand" Click="Save_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="SaveBg" Background="{TemplateBinding Background}" CornerRadius="6">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="SaveBg" Property="Background" Value="#0070D8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="SaveBg" Property="Background" Value="#005CBF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+
+        </Grid>
+    </Border>
+</Window>

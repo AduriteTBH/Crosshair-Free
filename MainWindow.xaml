@@ -1,0 +1,1069 @@
+<Window x:Class="CrosshairFree.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Crosshair Free — Developed by adurite" 
+        Icon="app.ico"
+        Height="780" Width="1060" 
+        MinHeight="680" MinWidth="940"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        Background="#121214" Foreground="#FFFFFF"
+        FontFamily="Segoe UI Variable Display, Segoe UI, Inter, Arial"
+        FontSize="12">
+
+    <Window.Resources>
+        <!-- Custom Sleek Dark ScrollBar Styles -->
+        <Style x:Key="DarkScrollBarThumb" TargetType="{x:Type Thumb}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="IsTabStop" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border x:Name="ThumbBorder"
+                                CornerRadius="3"
+                                Background="#33333E"
+                                Margin="1,0"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#4F4F60"/>
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="true">
+                                <Setter TargetName="ThumbBorder" Property="Background" Value="#0084FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkScrollBar" TargetType="{x:Type ScrollBar}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollBar}">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource DarkScrollBarThumb}"/>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Global ScrollViewer Dark Theme Style -->
+        <Style TargetType="{x:Type ScrollViewer}">
+            <Setter Property="OverridesDefaultStyle" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollContentPresenter Grid.Column="0"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar"
+                                       Grid.Column="1"
+                                       Style="{StaticResource DarkScrollBar}"
+                                       Value="{TemplateBinding VerticalOffset}"
+                                       Maximum="{TemplateBinding ScrollableHeight}"
+                                       ViewportSize="{TemplateBinding ViewportHeight}"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 1:1 Concept Custom Slider Style (Zero-Gap Electric Blue & White) -->
+        <Style x:Key="ConceptSlider" TargetType="Slider">
+            <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#0084FF"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="0,2,0,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid VerticalAlignment="Center">
+                            <!-- Background Track: Solid Crisp White -->
+                            <Border x:Name="TrackBackground" 
+                                    Height="6" 
+                                    Background="#FFFFFF" 
+                                    CornerRadius="3" 
+                                    VerticalAlignment="Center"/>
+
+                            <!-- Interactive Track & Thumb (Seamless Zero-Gap) -->
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.DecreaseLarge}">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="6" Background="#0084FF" CornerRadius="3,0,0,3" Margin="0,0,-8,0" VerticalAlignment="Center"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="{x:Static Slider.IncreaseLarge}">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="6" Background="Transparent" Margin="-8,0,0,0" VerticalAlignment="Center"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Grid Width="16" Height="16" Margin="-8,0,-8,0">
+                                                    <Ellipse Width="16" Height="16" Fill="#FFFFFF" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.35" Color="#000000"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Custom Dark ComboBox Style & Fully Opaque Popup (Zero Bleed-through) -->
+        <Style x:Key="DarkComboBox" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="#1B1B20"/>
+            <Setter Property="BorderBrush" Value="#2E2E38"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Background" Value="#151518"/>
+                        <Setter Property="Foreground" Value="#FFFFFF"/>
+                        <Setter Property="Padding" Value="10,6"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="ItemBorder" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" CornerRadius="5" Margin="2,1">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#0084FF"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#0084FF"/>
+                                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <!-- Toggle Button Header -->
+                            <ToggleButton x:Name="ToggleButton" 
+                                          Focusable="False" 
+                                          IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                          ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="BtnBorder" 
+                                                Background="#1B1B20" 
+                                                BorderBrush="#2E2E38" 
+                                                BorderThickness="1" 
+                                                CornerRadius="6" 
+                                                Padding="10,6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Path Grid.Column="1" 
+                                                      Data="M 0 0 L 4 4 L 8 0" 
+                                                      Stroke="#9E9EA8" 
+                                                      StrokeThickness="1.5" 
+                                                      VerticalAlignment="Center" 
+                                                      Margin="6,0,2,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#0084FF"/>
+                                                <Setter TargetName="BtnBorder" Property="Background" Value="#222228"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <!-- Selected Content Display -->
+                            <ContentPresenter Name="ContentSite" 
+                                              IsHitTestVisible="False" 
+                                              Content="{TemplateBinding SelectionBoxItem}" 
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" 
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" 
+                                              Margin="10,6,26,6" 
+                                              VerticalAlignment="Center" 
+                                              HorizontalAlignment="Left"/>
+
+                            <!-- 100% Solid Opaque Dropdown Popup (No White Background Bleed-through) -->
+                            <Popup Name="Popup" 
+                                   Placement="Bottom" 
+                                   IsOpen="{TemplateBinding IsDropDownOpen}" 
+                                   AllowsTransparency="True" 
+                                   Focusable="False" 
+                                   PopupAnimation="Slide">
+                                <Grid Name="DropDown" 
+                                      MinWidth="260" 
+                                      MaxHeight="290" 
+                                      Background="#151518">
+                                    <Border Background="#151518" 
+                                            BorderBrush="#2E2E38" 
+                                            BorderThickness="1.5" 
+                                            CornerRadius="6" 
+                                            Padding="4" 
+                                            Margin="0,3,0,0">
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="16" ShadowDepth="4" Opacity="0.7" Color="#000000"/>
+                                        </Border.Effect>
+                                        <ScrollViewer Background="#151518" SnapsToDevicePixels="True" VerticalScrollBarVisibility="Auto">
+                                            <StackPanel Background="#151518" IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Smooth Animated Button Style -->
+        <Style x:Key="DarkActionBtn" TargetType="Button">
+            <Setter Property="Background" Value="#1E1E24"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#2D2D35"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="6" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#2A2A34"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#0084FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#151518"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Smooth Animated Weapon Card Style -->
+        <Style x:Key="HoverWeaponCardStyle" TargetType="Border">
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.012" Duration="0:0:0.12"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.012" Duration="0:0:0.12"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:0.12"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.0" Duration="0:0:0.12"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Smooth Animated Color Card Style -->
+        <Style x:Key="HoverColorCardStyle" TargetType="Border">
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TranslateTransform Y="0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="-3" Duration="0:0:0.10"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="0:0:0.10"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Custom Circular Toggle CheckBox Style -->
+        <Style x:Key="CircleToggleCheckBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Grid Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
+                                <Ellipse x:Name="OuterCircle" Stroke="#3E3E4A" StrokeThickness="1.5" Fill="#1E1E24"/>
+                                <Ellipse x:Name="InnerDot" Width="7" Height="7" Fill="#0084FF" Visibility="Collapsed"/>
+                            </Grid>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="OuterCircle" Property="Stroke" Value="#0084FF"/>
+                                <Setter TargetName="InnerDot" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterCircle" Property="Stroke" Value="#60CDFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="RootLayoutGrid" Margin="16,14,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 1. TOP HEADER / TITLEBAR -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Brand Left: Icon + CROSSHAIR FREE • Developed By Adurite -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="28" Height="28" Background="#18181C" BorderBrush="#00E5FF" BorderThickness="1.5" CornerRadius="6" Margin="0,0,10,0">
+                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Ellipse Width="14" Height="14" Stroke="#00FF88" StrokeThickness="1.5"/>
+                        <Rectangle Width="1.5" Height="18" Fill="#00E5FF"/>
+                        <Rectangle Width="18" Height="1.5" Fill="#00E5FF"/>
+                        <Ellipse Width="3" Height="3" Fill="#FF2600"/>
+                    </Grid>
+                </Border>
+                <TextBlock Text="CROSSHAIR FREE" FontSize="14" FontWeight="Black" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                <TextBlock Text="  •  " FontSize="13" Foreground="#4E4E5A" VerticalAlignment="Center"/>
+                <TextBlock Text="Developed By Adurite" FontSize="12" FontWeight="SemiBold" Foreground="#8E8E98" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Actions Right: KEY SETTINGS + Always on Top + ACTIVE Badge + TOGGLE (F8) -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- KEY SETTINGS BUTTON -->
+                <Button x:Name="BtnKeySettings" Content="KEY SETTINGS" Background="#18181C" BorderBrush="#383846" Foreground="#FFFFFF" FontWeight="Bold" FontSize="11" Padding="12,5" Margin="0,0,16,0" VerticalAlignment="Center" Cursor="Hand" Click="BtnKeySettings_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1.5" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#262630"/>
+                                    <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#0084FF"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#121216"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <CheckBox x:Name="ChkTopmost" Content="Always on Top" Style="{StaticResource CircleToggleCheckBox}" IsChecked="True" Foreground="#A0A0AA" VerticalAlignment="Center" Margin="0,0,16,0" Checked="ChkTopmost_Changed" Unchecked="ChkTopmost_Changed"/>
+                
+                <!-- Active Status Badge -->
+                <Border x:Name="PillStatus" Background="#00D287" CornerRadius="6" Padding="14,6" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse x:Name="StatusDot" Width="6" Height="6" Fill="#FFFFFF" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="TxtStatus" Text="ACTIVE" FontSize="11" FontWeight="Black" Foreground="#FFFFFF"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Toggle Action Button -->
+                <Button x:Name="BtnToggleCrosshair" Content="TOGGLE (F8)" Background="#0084FF" BorderBrush="#0084FF" Foreground="#FFFFFF" FontWeight="Black" FontSize="11" Padding="14,6" Click="BtnToggleCrosshair_Click">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBg" Background="#0084FF" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBg" Property="Background" Value="#0070D8"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="BtnBg" Property="Background" Value="#005CBF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- 2. WEAPON SELECTOR CARDS ROW (AR vs SHOTGUN) -->
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- WEAPON 1: AR CARD (Selected state by default) -->
+            <Border x:Name="CardAr" Style="{StaticResource HoverWeaponCardStyle}" Grid.Column="0" Background="#18181C" BorderBrush="#0084FF" BorderThickness="2" CornerRadius="8" Padding="14,12" Margin="0,0,6,0" Cursor="Hand" MouseLeftButtonUp="SelectAr_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="#1A2234" BorderBrush="#2A3854" BorderThickness="1" CornerRadius="5" Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Text="2 / F" FontWeight="Black" Foreground="#60CDFF" FontSize="11"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtCardArTitle" Text="Preview: Assault Rifle (2 / F)" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        <TextBlock Text="Precison crosshair with center dot" FontSize="11" Foreground="#8E8E98" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border x:Name="BadgeArSelected" Grid.Column="2" Background="#0084FF" CornerRadius="5" Padding="10,4" VerticalAlignment="Center">
+                        <TextBlock Text="Selected" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- WEAPON 2: SHOTGUN CARD -->
+            <Border x:Name="CardShotgun" Style="{StaticResource HoverWeaponCardStyle}" Grid.Column="1" Background="#18181C" BorderBrush="#26262B" BorderThickness="1" CornerRadius="8" Padding="14,12" Margin="6,0,0,0" Cursor="Hand" MouseLeftButtonUp="SelectShotgun_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="#202026" BorderBrush="#2E2E38" BorderThickness="1" CornerRadius="5" Padding="10,4" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <TextBlock Text="KEY 3" FontWeight="Black" Foreground="#FFFFFF" FontSize="11"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Shotgun" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                        <TextBlock Text="Bloom spread circle with center dot" FontSize="11" Foreground="#8E8E98" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border x:Name="BadgeShotgunSelected" Grid.Column="2" Background="#0084FF" CornerRadius="5" Padding="10,4" VerticalAlignment="Center" Visibility="Collapsed">
+                        <TextBlock Text="Selected" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 3. MAIN DUAL-COLUMN CONTENT (PREVIEW + CONTROLS) -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.0*"/>
+                <ColumnDefinition Width="1.25*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT: LIVE PREVIEW CONTAINER -->
+            <Border Grid.Column="0" Background="#18181C" BorderBrush="#26262B" BorderThickness="1" CornerRadius="8" Padding="16" Margin="0,0,6,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Preview Title -->
+                    <TextBlock x:Name="TxtPreviewHeader" Grid.Row="0" Text="Preview: Assault Rifle (2 / F)" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,12"/>
+
+                    <!-- Main Viewport Box -->
+                    <Border Grid.Row="1" x:Name="PreviewViewport" Background="#121214" BorderBrush="#202026" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
+                        <Canvas x:Name="CanvasPreview" Width="320" Height="320" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Background Preview Chips (Dark, Sky, Grass, Snow) -->
+                    <StackPanel Grid.Row="2" Margin="0,14,0,0">
+                        <TextBlock Text="Background Preview:" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,8"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Dark Chip -->
+                            <StackPanel Grid.Column="0" Margin="0,0,4,0">
+                                <Button x:Name="BtnBgDark" Content="Dark" Style="{StaticResource DarkActionBtn}" Background="#1E1E24" Click="BgDark_Click"/>
+                                <Border x:Name="IndicatorDark" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Visible"/>
+                            </StackPanel>
+
+                            <!-- Sky Chip -->
+                            <StackPanel Grid.Column="1" Margin="2,0,2,0">
+                                <Button x:Name="BtnBgSky" Content="Sky" Style="{StaticResource DarkActionBtn}" Background="#0284C7" BorderBrush="#0284C7" Foreground="#FFFFFF" Click="BgSky_Click"/>
+                                <Border x:Name="IndicatorSky" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+
+                            <!-- Grass Chip -->
+                            <StackPanel Grid.Column="2" Margin="2,0,2,0">
+                                <Button x:Name="BtnBgGrass" Content="Grass" Style="{StaticResource DarkActionBtn}" Background="#16A34A" BorderBrush="#16A34A" Foreground="#FFFFFF" Click="BgGrass_Click"/>
+                                <Border x:Name="IndicatorGrass" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+
+                            <!-- Snow Chip -->
+                            <StackPanel Grid.Column="3" Margin="4,0,0,0">
+                                <Button x:Name="BtnBgSnow" Content="Snow" Style="{StaticResource DarkActionBtn}" Background="#E2E8F0" BorderBrush="#E2E8F0" Foreground="#000000" FontWeight="Bold" Click="BgSnow_Click"/>
+                                <Border x:Name="IndicatorSnow" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- RIGHT: CUSTOMIZATION CONTROLS -->
+            <Border Grid.Column="1" Background="#18181C" BorderBrush="#26262B" BorderThickness="1" CornerRadius="8" Padding="18,16" Margin="6,0,0,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+                    <StackPanel>
+                        
+                        <!-- CROSSHAIR STYLE ROW WITH 24 VISUAL PREVIEW ICONS -->
+                        <Grid Margin="0,0,0,16">
+                            <TextBlock Text="Crosshair Style:" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="CmbStyle" Style="{StaticResource DarkComboBox}" Width="240" HorizontalAlignment="Right" SelectionChanged="CmbStyle_SelectionChanged">
+                                
+                                <!-- 1. Cross + Center Dot -->
+                                <ComboBoxItem IsSelected="True">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="1.5" Height="12" Fill="#00FF88"/>
+                                                <Rectangle Width="12" Height="1.5" Fill="#00FF88"/>
+                                                <Ellipse Width="3" Height="3" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Cross + Center Dot" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 2. Shotgun Bloom Circle -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="13" Height="13" Stroke="#00FF88" StrokeThickness="1.5"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun Bloom Circle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 3. Shotgun 4-Arm Bloom -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="11" Height="11" Stroke="#00FF88" StrokeThickness="1.5"/>
+                                                <Rectangle Width="1.5" Height="15" Fill="#00E5FF"/>
+                                                <Rectangle Width="15" Height="1.5" Fill="#00E5FF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun 4-Arm Bloom" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 4. Shotgun Octagon Spread -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 4 0 L 8 0 L 12 4 L 12 8 L 8 12 L 4 12 L 0 8 L 0 4 Z" Stroke="#00FF88" StrokeThickness="1.2" Stretch="Uniform" Width="13" Height="13"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun Octagon Spread" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 5. Shotgun Dual Ring -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="14" Height="14" Stroke="#00FF88" StrokeThickness="1"/>
+                                                <Ellipse Width="8" Height="8" Stroke="#00E5FF" StrokeThickness="1"/>
+                                                <Ellipse Width="2" Height="2" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun Dual Ring" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 6. Heavy Shotgun Diamond -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 6 0 L 12 6 L 6 12 L 0 6 Z" Stroke="#FF3366" StrokeThickness="1.2" Stretch="Uniform" Width="13" Height="13"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Heavy Shotgun Diamond" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 7. Shotgun 4-Corner Dots -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="13" Height="13" Stroke="#00FF88" StrokeThickness="1.2"/>
+                                                <Ellipse Width="2" Height="2" Fill="#00E5FF" Margin="0,-9,0,0"/>
+                                                <Ellipse Width="2" Height="2" Fill="#00E5FF" Margin="0,9,0,0"/>
+                                                <Ellipse Width="2" Height="2" Fill="#00E5FF" Margin="-9,0,0,0"/>
+                                                <Ellipse Width="2" Height="2" Fill="#00E5FF" Margin="9,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun 4-Corner Dots" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 8. Shotgun Tri-Bloom -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="13" Height="13" Stroke="#00FF88" StrokeThickness="1"/>
+                                                <Path Data="M 6 1 L 6 6 M 6 6 L 1 10 M 6 6 L 11 10" Stroke="#00E5FF" StrokeThickness="1.5" Stretch="Uniform" Width="10" Height="10"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun Tri-Bloom" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 9. Classic 4-Arm Cross -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="1.5" Height="12" Fill="#00FF88"/>
+                                                <Rectangle Width="12" Height="1.5" Fill="#00FF88"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Classic 4-Arm Cross" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 10. Dot Only (Sniper) -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="4" Height="4" Fill="#FF2600"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Dot Only (Sniper)" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 11. Cross + Circle Combo -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="10" Height="10" Stroke="#00FF88" StrokeThickness="1"/>
+                                                <Rectangle Width="1.5" Height="13" Fill="#00E5FF"/>
+                                                <Rectangle Width="13" Height="1.5" Fill="#00E5FF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Cross + Circle Combo" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 12. T-Style (No Top Arm) -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="1.5" Height="6" Fill="#00FF88" Margin="0,6,0,0"/>
+                                                <Rectangle Width="12" Height="1.5" Fill="#00FF88"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="T-Style (No Top Arm)" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 13. Tactical Chevron -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 1 8 L 6 1 L 11 8" Stroke="#00FF88" StrokeThickness="1.5" Stretch="Uniform" Width="11" Height="9"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Tactical Chevron" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 14. Diamond Reticle -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 6 0 L 12 6 L 6 12 L 0 6 Z" Stroke="#00FF88" StrokeThickness="1.5" Stretch="Uniform" Width="11" Height="11"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Diamond Reticle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 15. Box Square -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="10" Height="10" Stroke="#00FF88" StrokeThickness="1.5"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Box Square" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 16. Tri-Point Tactical (Y-Cross) -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 6 0 L 6 6 M 6 6 L 0 11 M 6 6 L 12 11" Stroke="#00FF88" StrokeThickness="1.5" Stretch="Uniform" Width="11" Height="11"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Tri-Point Tactical (Y-Cross)" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 17. Dot with Outer Ring -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="12" Height="12" Stroke="#00FF88" StrokeThickness="1.5"/>
+                                                <Ellipse Width="3" Height="3" Fill="#00FF88"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Dot with Outer Ring" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 18. X-Cross (45° Angle) -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 1 1 L 11 11 M 1 11 L 11 1" Stroke="#00FF88" StrokeThickness="1.5" Stretch="Uniform" Width="11" Height="11"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="X-Cross (45° Angle)" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 19. Hollow Box Reticle -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 3 0 L 0 0 L 0 3 M 9 0 L 12 0 L 12 3 M 0 9 L 0 12 L 3 12 M 12 9 L 12 12 L 9 12" Stroke="#00FF88" StrokeThickness="1.5" Stretch="Uniform" Width="12" Height="12"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Hollow Box Reticle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 20. Apex Tri-Dot Reticle -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#00FF88" Margin="0,-7,0,0"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#00FF88" Margin="-7,6,0,0"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#00FF88" Margin="7,6,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Apex Tri-Dot Reticle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 21. CS / Valorant Classic Gap -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="1.5" Height="4" Fill="#00FF88" Margin="0,-8,0,0"/>
+                                                <Rectangle Width="1.5" Height="4" Fill="#00FF88" Margin="0,8,0,0"/>
+                                                <Rectangle Width="4" Height="1.5" Fill="#00FF88" Margin="-8,0,0,0"/>
+                                                <Rectangle Width="4" Height="1.5" Fill="#00FF88" Margin="8,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="CS / Valorant Classic Gap" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 22. Cyber Ring + Center Dot -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="13" Height="13" Stroke="#00E5FF" StrokeThickness="1.2"/>
+                                                <Rectangle Width="1.5" Height="16" Fill="#00FF88"/>
+                                                <Rectangle Width="16" Height="1.5" Fill="#00FF88"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Cyber Ring + Center Dot" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 23. Sniper Mil-Dot Cross -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="1" Height="15" Fill="#00FF88"/>
+                                                <Rectangle Width="15" Height="1" Fill="#00FF88"/>
+                                                <Ellipse Width="1.5" Height="1.5" Fill="#00E5FF" Margin="0,-6,0,0"/>
+                                                <Ellipse Width="1.5" Height="1.5" Fill="#00E5FF" Margin="0,6,0,0"/>
+                                                <Ellipse Width="1.5" Height="1.5" Fill="#00E5FF" Margin="-6,0,0,0"/>
+                                                <Ellipse Width="1.5" Height="1.5" Fill="#00E5FF" Margin="6,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Sniper Mil-Dot Cross" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 24. Heart Reticle -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 6 10 C 2 7 0 4 0 2.5 C 0 1 1 0 2.5 0 C 4 0 5 1 6 2 C 7 1 8 0 9.5 0 C 11 0 12 1 12 2.5 C 12 4 10 7 6 10 Z" Stroke="#FF3366" StrokeThickness="1.2" Stretch="Uniform" Width="12" Height="10"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Heart Reticle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                            </ComboBox>
+                        </Grid>
+
+                        <!-- SLIDER 1: ARM LENGTH / RADIUS (SIZE) -->
+                        <Grid>
+                            <TextBlock Text="Arm Length / Radius" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            <TextBlock x:Name="TxtSizeVal" Text="4px" Foreground="#8E8E98" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Slider x:Name="SliderSize" Style="{StaticResource ConceptSlider}" Minimum="2" Maximum="36" Value="4" ValueChanged="Slider_ValueChanged"/>
+
+                        <!-- SLIDER 2: LINE THICKNESS -->
+                        <Grid>
+                            <TextBlock Text="Line Thickness" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            <TextBlock x:Name="TxtThicknessVal" Text="2px" Foreground="#8E8E98" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Slider x:Name="SliderThickness" Style="{StaticResource ConceptSlider}" Minimum="1" Maximum="10" Value="2" ValueChanged="Slider_ValueChanged"/>
+
+                        <!-- SLIDER 3: CENTER GAP -->
+                        <Grid>
+                            <TextBlock Text="Center Gap" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            <TextBlock x:Name="TxtGapVal" Text="5px" Foreground="#8E8E98" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Slider x:Name="SliderGap" Style="{StaticResource ConceptSlider}" Minimum="0" Maximum="30" Value="5" ValueChanged="Slider_ValueChanged"/>
+
+                        <!-- SLIDER 4: CENTER DOT (TOGGLE BULLET + SLIDER) -->
+                        <Grid>
+                            <CheckBox x:Name="ChkCenterDot" Content="Center Dot" Style="{StaticResource CircleToggleCheckBox}" IsChecked="True" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                            <TextBlock x:Name="TxtDotSizeVal" Text="2.5px" Foreground="#8E8E98" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Slider x:Name="SliderDotSize" Style="{StaticResource ConceptSlider}" Minimum="1" Maximum="10" Value="2.5" ValueChanged="Slider_ValueChanged"/>
+
+                        <!-- SLIDER 5: CONTRAST OUTLINE (TOGGLE BULLET + SLIDER) -->
+                        <Grid>
+                            <CheckBox x:Name="ChkOutline" Content="Contrast Outline" Style="{StaticResource CircleToggleCheckBox}" IsChecked="True" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                            <TextBlock x:Name="TxtOutlineVal" Text="1.0px" Foreground="#8E8E98" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Slider x:Name="SliderOutline" Style="{StaticResource ConceptSlider}" Minimum="0.5" Maximum="4.0" Value="1.0" SmallChange="0.5" ValueChanged="Slider_ValueChanged"/>
+
+                        <!-- POSITION OFFSET ROW -->
+                        <Grid Margin="0,4,0,6">
+                            <TextBlock Text="Position Offset (X / Y Adjustment):" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="TxtOffsetVal" Text="X: 0, Y: 0" Foreground="#0084FF" FontSize="11" FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2.2*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Content="Reset Position" Style="{StaticResource DarkActionBtn}" Margin="0,0,6,0" Click="ResetOffset_Click"/>
+                            <Button Grid.Column="1" Content="←" Style="{StaticResource DarkActionBtn}" Margin="2,0" FontSize="13" Click="OffsetLeft_Click"/>
+                            <Button Grid.Column="2" Content="→" Style="{StaticResource DarkActionBtn}" Margin="2,0" FontSize="13" Click="OffsetRight_Click"/>
+                            <Button Grid.Column="3" Content="↑" Style="{StaticResource DarkActionBtn}" Margin="2,0" FontSize="13" Click="OffsetUp_Click"/>
+                            <Button Grid.Column="4" Content="↓" Style="{StaticResource DarkActionBtn}" Margin="2,0,0,0" FontSize="13" Click="OffsetDown_Click"/>
+                        </Grid>
+
+                        <!-- CROSSHAIR COLOR SECTION (5 LARGE CARDS WITH BLUE OUTLINE & INDICATOR) -->
+                        <TextBlock Text="Crosshair Color:" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1.1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- GREEN CARD -->
+                            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                <Border x:Name="CardColorGreen" Style="{StaticResource HoverColorCardStyle}" Height="78" Background="#00F576" BorderBrush="#0084FF" BorderThickness="2" CornerRadius="8" Cursor="Hand" MouseLeftButtonUp="Color_Green">
+                                    <TextBlock Text="Green" FontWeight="Bold" Foreground="#000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="IndicatorColorGreen" Height="2" Background="#0084FF" Margin="6,4,6,0" Visibility="Visible"/>
+                            </StackPanel>
+
+                            <!-- CYAN CARD -->
+                            <StackPanel Grid.Column="1" Margin="3,0,4,0">
+                                <Border x:Name="CardColorCyan" Style="{StaticResource HoverColorCardStyle}" Height="78" Background="#00E5FF" BorderBrush="Transparent" BorderThickness="2" CornerRadius="8" Cursor="Hand" MouseLeftButtonUp="Color_Cyan">
+                                    <TextBlock Text="Cyan" FontWeight="Bold" Foreground="#000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="IndicatorColorCyan" Height="2" Background="#0084FF" Margin="6,4,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+
+                            <!-- WHITE CARD -->
+                            <StackPanel Grid.Column="2" Margin="4,0,3,0">
+                                <Border x:Name="CardColorWhite" Style="{StaticResource HoverColorCardStyle}" Height="78" Background="#FFFFFF" BorderBrush="Transparent" BorderThickness="2" CornerRadius="8" Cursor="Hand" MouseLeftButtonUp="Color_White">
+                                    <TextBlock Text="White" FontWeight="Bold" Foreground="#000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="IndicatorColorWhite" Height="2" Background="#0084FF" Margin="6,4,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+
+                            <!-- RED CARD -->
+                            <StackPanel Grid.Column="3" Margin="5,0,2,0">
+                                <Border x:Name="CardColorRed" Style="{StaticResource HoverColorCardStyle}" Height="78" Background="#FF2600" BorderBrush="Transparent" BorderThickness="2" CornerRadius="8" Cursor="Hand" MouseLeftButtonUp="Color_Red">
+                                    <TextBlock Text="Red" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <Border x:Name="IndicatorColorRed" Height="2" Background="#0084FF" Margin="6,4,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+
+                            <!-- COLOR PICKER (RAINBOW GRADIENT CARD) -->
+                            <StackPanel Grid.Column="4" Margin="5,0,0,0">
+                                <Border x:Name="CardColorPicker" Style="{StaticResource HoverColorCardStyle}" Height="78" BorderBrush="Transparent" BorderThickness="2" CornerRadius="8" Cursor="Hand" MouseLeftButtonUp="Color_Picker">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#FF0000" Offset="0.0"/>
+                                            <GradientStop Color="#FF7700" Offset="0.15"/>
+                                            <GradientStop Color="#FFEE00" Offset="0.30"/>
+                                            <GradientStop Color="#00FF66" Offset="0.45"/>
+                                            <GradientStop Color="#00E5FF" Offset="0.60"/>
+                                            <GradientStop Color="#0044FF" Offset="0.75"/>
+                                            <GradientStop Color="#9900FF" Offset="0.90"/>
+                                            <GradientStop Color="#FF00AA" Offset="1.0"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Grid>
+                                        <Border Background="#25000000" CornerRadius="6"/>
+                                        <TextBlock Text="Color Picker" FontWeight="Bold" Foreground="#FFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Effect>
+                                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Color="#000000" Opacity="0.8"/>
+                                            </TextBlock.Effect>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                                <Border x:Name="IndicatorColorPicker" Height="2" Background="#0084FF" Margin="6,4,6,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Grid>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+    </Grid>
+</Window>
