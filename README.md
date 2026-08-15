@@ -8,7 +8,7 @@
 [![Price](https://img.shields.io/badge/Price-100%25%20FREE-FF3366.svg?style=for-the-badge)](https://github.com)
 [![Status](https://img.shields.io/badge/Version-v1.0.1-60CDFF.svg?style=for-the-badge)](https://github.com)
 
-*A completely free, open, and bloat-free alternative to paid crosshair tools like Crosshair X, running at **only 0.2 MB - 3 MB of RAM** with **0.00ms input latency**.*
+*A completely free, open, and bloat-free alternative to paid crosshair tools like Crosshair X, running at **only 0.2 MB - 5 MB of RAM** with **0.00ms input latency**.*
 
 ---
 
