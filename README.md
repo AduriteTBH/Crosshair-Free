@@ -8,7 +8,7 @@
 [![Price](https://img.shields.io/badge/Price-100%25%20FREE-FF3366.svg?style=for-the-badge)](https://github.com)
 [![Status](https://img.shields.io/badge/Version-v1.0.1-60CDFF.svg?style=for-the-badge)](https://github.com)
 
-*A completely free, open, and bloat-free alternative to paid crosshair tools like Crosshair X, running at **only 0.2 MB - 5 MB of RAM** with **0.00ms input latency**.*
+*A completely free, open, and bloat-free alternative to paid crosshair tools like Crosshair X, running at **only 0.2 MB - 3 MB of RAM** with **0.00ms input latency**.*
 
 ---
 
@@ -31,7 +31,7 @@ Most commercial crosshair apps (like Crosshair X) charge money, require Steam/su
 | **Input Delay Overhead** | **0.00 ms (Zero Delay)** | 2 - 15 ms |
 | **FPS Impact** | **0.00% (Zero Drop)** | Noticeable in high-refresh FPS |
 | **Dynamic Weapon Switching** | ✅ **Fully Customizable (Bind Any Keys)** | ❌ Complex / Limited |
-| **Reticle Presets** | ✅ **24 Pro & Shotgun Styles** | ⚠️ Generic / Paywalled |
+| **Reticle Presets** | ✅ **30 Pro & Shotgun Styles** | ⚠️ Generic / Paywalled |
 | **Interactive Keybind Manager** | ✅ **Built-in Key Recording & Chip Deletion** | ⚠️ Clunky |
 | **Standalone Portable `.exe`** | ✅ **Yes (No Install Needed)** | ❌ Bloated Installer / Steam |
 | **Telemetry & Adware** | ❌ **None (Zero Bloat)** | ⚠️ Background trackers |
@@ -40,9 +40,9 @@ Most commercial crosshair apps (like Crosshair X) charge money, require Steam/su
 
 ## ✨ Features
 
-### 🎯 24 Competitive & Shotgun Reticles
-* **Dedicated Shotgun Spreads**: Standard Bloom Circle, 4-Arm Bloom, Octagon Spread, Concentric Dual Rings, Heavy Diamond Bloom, 4-Corner Pellet Dots, Tri-Bloom.
-* **Precision Rifle & Sniper Reticles**: Classic 4-Arm Cross, Center Dot Sniper, Cross + Circle Combo, T-Style (No Top Arm), Tactical Chevrons, Diamond, Box Square, Tri-Point Y-Cross, X-Cross (45°), Tactical Hollow Box Brackets, Apex Tri-Dot, CS/Valorant Classic Gap, Cyber Ring, and Sniper Mil-Dot hashes.
+### 🎯 30 Competitive & Shotgun Reticles
+* **Dedicated Shotgun Spreads**: Standard Bloom Circle, 4-Arm Bloom, Octagon Spread, Hexagon Spread, Shotgun Cross-Ring, Concentric Dual Rings, Heavy Diamond Bloom, 4-Corner Pellet Dots, Tri-Bloom.
+* **Precision Rifle & Sniper Reticles**: Classic 4-Arm Cross, Center Dot Sniper, CS2 Static Precision, Overwatch Tri-Tick Circle, Target Bullseye, Double Tactical Chevron, Cross + Circle Combo, T-Style (No Top Arm), Tactical Chevron, Diamond, Box Square, Tri-Point Y-Cross, X-Cross (45°), Tactical Hollow Box Brackets, Apex Tri-Dot, CS/Valorant Classic Gap, Cyber Ring, and Sniper Mil-Dot hashes.
 * **Visual Dropdown Icons**: Every reticle is shown with a live vector thumbnail before selection.
 
 ### 🔫 Dynamic Weapon Switching & Custom Keybinds
