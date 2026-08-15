@@ -78,7 +78,7 @@ Most commercial crosshair apps (like Crosshair X) charge money, require Steam/su
 
 ## 🚀 Quick Start
 
-1. Download **`CrosshairFree.exe`** from the [Releases](https://github.com) tab.
+1. Download **`CrosshairFree.exe`** from the [Releases](https://github.com/AduriteTBH/Crosshair-Free/releases) tab.
 2. Double-click to launch (no setup or installation required).
 3. Pick your desired crosshairs for AR and Shotgun, and customize your keybinds.
 4. Jump into your favorite game and enjoy 0-lag precision!
