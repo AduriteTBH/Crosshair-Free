@@ -123,7 +123,7 @@ namespace CrosshairFree.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CrosshairFree;V1.0.1.0;component/views/colorpickerwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CrosshairFree;V1.0.2.0;component/views/colorpickerwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\ColorPickerWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

@@ -1,5 +1,5 @@
 ﻿CrosshairFree
-1.0.1.0
+1.0.2.0
 
 winexe
 C#
@@ -12,7 +12,7 @@ TRACE;RELEASE;NET;NET8_0;NETCOREAPP
 e:\Google Anti FOLDER\CrosshairFree\App.xaml
 4-1503625319
 
-10-182743152
+12-1054098902
 1981026658812
 MainWindow.xaml;Rendering\CrosshairOverlayWindow.xaml;Views\ColorPickerWindow.xaml;Views\KeySettingsWindow.xaml;
 

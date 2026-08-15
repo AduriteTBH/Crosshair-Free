@@ -23,10 +23,9 @@ namespace CrosshairFree
         private KeybindConfig _keybinds;
         private int _activeProfileIndex = 0; // 0 = AR, 1 = Shotgun
         private bool _isUpdatingUi = true;
-
-        private IntPtr _keyboardHookId = IntPtr.Zero;
-        private NativeWin32.LowLevelKeyboardProc _keyboardHookProc;
         private DispatcherTimer? _memTrimTimer;
+        private readonly SystemTrayService _trayService = new SystemTrayService();
+        private bool _isRealExit = false;
 
         public MainWindow()
         {
@@ -38,7 +37,6 @@ namespace CrosshairFree
             _keybinds = savedSettings.Keybinds ?? new KeybindConfig();
 
             _activeProfileIndex = 0;
-            _keyboardHookProc = KeyboardHookCallback;
 
             InitializeComponent();
 
@@ -48,22 +46,23 @@ namespace CrosshairFree
                 Topmost = savedSettings.AlwaysOnTop;
             }
 
-            // Periodic heartbeat: auto-heals keyboard hook & trims working set
+            if (ChkSystemTray != null)
+            {
+                ChkSystemTray.IsChecked = savedSettings.SystemTray;
+            }
+
+            // Periodic working set trimmer (forces RAM to ~0.2MB - 0.3MB)
             _memTrimTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
                 Interval = TimeSpan.FromSeconds(3)
             };
-            _memTrimTimer.Tick += (s, e) =>
-            {
-                EnsureKeyboardHook();
-                NativeWin32.TrimWorkingSet();
-            };
+            _memTrimTimer.Tick += (s, e) => NativeWin32.TrimWorkingSet();
             _memTrimTimer.Start();
 
             Loaded += MainWindow_Loaded;
+            Closing += MainWindow_Closing;
             Closed += MainWindow_Closed;
             StateChanged += MainWindow_StateChanged;
-            Activated += (s, e) => EnsureKeyboardHook();
             Deactivated += (s, e) => NativeWin32.TrimWorkingSet();
             LostFocus += (s, e) => NativeWin32.TrimWorkingSet();
             MouseLeave += (s, e) => NativeWin32.TrimWorkingSet();
@@ -77,15 +76,6 @@ namespace CrosshairFree
             {
                 var handle = new WindowInteropHelper(this).Handle;
                 NativeWin32.EnableImmersiveDarkMode(handle);
-            }
-            catch { }
-        }
-
-        private void EnsureKeyboardHook()
-        {
-            try
-            {
-                _keyboardHookId = NativeWin32.StartPassiveKeyboardHook(_keyboardHookProc);
             }
             catch { }
         }
@@ -106,8 +96,21 @@ namespace CrosshairFree
                 Activate();
                 Focus();
 
-                // Start passive non-blocking global keyboard hook (0.00ms latency)
-                EnsureKeyboardHook();
+                // Start dedicated background hook service (100% resilient, 0 timeout, 0.00ms latency)
+                KeyboardHookService.Instance.KeyDown += OnGlobalKeyDown;
+                KeyboardHookService.Instance.Start();
+
+                // Initialize System Tray Icon
+                _trayService.OnOpenRequested += () => Dispatcher.Invoke(() =>
+                {
+                    Show();
+                    WindowState = WindowState.Normal;
+                    Activate();
+                    Focus();
+                });
+
+                _trayService.OnContextMenuRequested += (x, y) => Dispatcher.Invoke(() => ShowDarkTrayContextMenu(x, y));
+                _trayService.Initialize(this);
 
                 // Launch Crosshair Overlay Window
                 _overlay = new CrosshairOverlayWindow();
@@ -131,7 +134,7 @@ namespace CrosshairFree
 
         private void MainWindow_StateChanged(object? sender, EventArgs e)
         {
-            if (_overlay != null && _overlay.Visibility == Visibility.Visible)
+            if (_overlay != null && _overlay.IsOverlayVisible)
             {
                 _overlay.RepositionAtScreenCenter();
             }
@@ -142,37 +145,29 @@ namespace CrosshairFree
             }
         }
 
-        private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        private void OnGlobalKeyDown(int vkCode)
         {
-            if (nCode >= 0 && (wParam == (IntPtr)NativeWin32.WM_KEYDOWN || wParam == (IntPtr)NativeWin32.WM_SYSKEYDOWN))
+            // Toggle Overlay Hotkey (Default F8, or user custom key)
+            if (_keybinds != null && vkCode == _keybinds.ToggleOverlayKey)
             {
-                int vkCode = Marshal.ReadInt32(lParam);
-
-                // Toggle Overlay Hotkey (Default F8, or user custom key)
-                if (_keybinds != null && vkCode == _keybinds.ToggleOverlayKey)
+                Dispatcher.BeginInvoke(DispatcherPriority.Send, () => ToggleOverlay());
+            }
+            // Custom Shotgun Triggers
+            else if (_keybinds != null && _keybinds.ShotgunKeys.Contains(vkCode))
+            {
+                if (_activeProfileIndex != 1)
                 {
-                    Dispatcher.BeginInvoke(DispatcherPriority.Send, () => ToggleOverlay());
-                }
-                // Custom Shotgun Triggers
-                else if (_keybinds != null && _keybinds.ShotgunKeys.Contains(vkCode))
-                {
-                    if (_activeProfileIndex != 1)
-                    {
-                        Dispatcher.BeginInvoke(DispatcherPriority.Send, () => SwitchWeapon(1));
-                    }
-                }
-                // Custom AR Triggers
-                else if (_keybinds != null && _keybinds.ArKeys.Contains(vkCode))
-                {
-                    if (_activeProfileIndex != 0)
-                    {
-                        Dispatcher.BeginInvoke(DispatcherPriority.Send, () => SwitchWeapon(0));
-                    }
+                    Dispatcher.BeginInvoke(DispatcherPriority.Send, () => SwitchWeapon(1));
                 }
             }
-
-            // Zero delay: instantly pass through 100% of keypresses to game!
-            return NativeWin32.CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
+            // Custom AR Triggers
+            else if (_keybinds != null && _keybinds.ArKeys.Contains(vkCode))
+            {
+                if (_activeProfileIndex != 0)
+                {
+                    Dispatcher.BeginInvoke(DispatcherPriority.Send, () => SwitchWeapon(0));
+                }
+            }
         }
 
         private void SwitchWeapon(int index)
@@ -235,6 +230,8 @@ namespace CrosshairFree
             if (ChkOutline != null) ChkOutline.IsChecked = prof.HasOutline;
             if (SliderOutline != null) SliderOutline.Value = prof.OutlineThickness;
 
+            if (SliderOpacity != null) SliderOpacity.Value = Math.Clamp(Math.Round(prof.Opacity * 100.0, 0), 10.0, 100.0);
+
             _isUpdatingUi = false;
             UpdateLabels();
             UpdateColorIndicators(prof.ColorHex);
@@ -244,18 +241,19 @@ namespace CrosshairFree
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isUpdatingUi || SliderSize == null || SliderThickness == null || SliderGap == null || 
-                SliderDotSize == null || SliderOutline == null || _profiles == null || _profiles.Count == 0 || 
-                _activeProfileIndex < 0 || _activeProfileIndex >= _profiles.Count)
+                SliderDotSize == null || SliderOutline == null || SliderOpacity == null || _profiles == null || 
+                _profiles.Count == 0 || _activeProfileIndex < 0 || _activeProfileIndex >= _profiles.Count)
             {
                 return;
             }
 
             var prof = _profiles[_activeProfileIndex];
-            prof.Size = SliderSize.Value;
-            prof.Thickness = SliderThickness.Value;
-            prof.Gap = SliderGap.Value;
-            prof.CenterDotSize = SliderDotSize.Value;
-            prof.OutlineThickness = SliderOutline.Value;
+            prof.Size = Math.Round(SliderSize.Value, 1);
+            prof.Thickness = Math.Round(SliderThickness.Value, 1);
+            prof.Gap = Math.Round(SliderGap.Value, 1);
+            prof.CenterDotSize = Math.Round(SliderDotSize.Value, 1);
+            prof.OutlineThickness = Math.Round(SliderOutline.Value, 1);
+            prof.Opacity = Math.Round(SliderOpacity.Value / 100.0, 2);
 
             UpdateLabels();
             _overlay?.UpdateConfig(prof);
@@ -297,11 +295,24 @@ namespace CrosshairFree
 
         private void UpdateLabels()
         {
-            if (TxtSizeVal != null && SliderSize != null) TxtSizeVal.Text = $"{(int)SliderSize.Value}px";
-            if (TxtThicknessVal != null && SliderThickness != null) TxtThicknessVal.Text = $"{(int)SliderThickness.Value}px";
-            if (TxtGapVal != null && SliderGap != null) TxtGapVal.Text = $"{(int)SliderGap.Value}px";
-            if (TxtDotSizeVal != null && SliderDotSize != null) TxtDotSizeVal.Text = $"{SliderDotSize.Value:0.0}px";
-            if (TxtOutlineVal != null && SliderOutline != null) TxtOutlineVal.Text = $"{SliderOutline.Value:0.0}px";
+            if (TxtSizeVal != null && SliderSize != null)
+                TxtSizeVal.Text = $"{SliderSize.Value:0.0}px";
+
+            if (TxtThicknessVal != null && SliderThickness != null)
+                TxtThicknessVal.Text = $"{SliderThickness.Value:0.0}px";
+
+            if (TxtGapVal != null && SliderGap != null)
+                TxtGapVal.Text = $"{SliderGap.Value:0.0}px";
+
+            if (TxtDotSizeVal != null && SliderDotSize != null)
+                TxtDotSizeVal.Text = $"{SliderDotSize.Value:0.0}px";
+
+            if (TxtOutlineVal != null && SliderOutline != null)
+                TxtOutlineVal.Text = $"{SliderOutline.Value:0.0}px";
+
+            if (TxtOpacityVal != null && SliderOpacity != null)
+                TxtOpacityVal.Text = $"{(int)SliderOpacity.Value}%";
+
             if (TxtOffsetVal != null && _profiles != null && _activeProfileIndex >= 0 && _activeProfileIndex < _profiles.Count)
             {
                 var p = _profiles[_activeProfileIndex];
@@ -360,8 +371,13 @@ namespace CrosshairFree
             SaveCurrentSettings();
         }
 
-        // --- COLOR CHIPS & PICKER ---
-        private void SetColor(string hex)
+        // --- COLOR MANAGEMENT ---
+        private void Color_Green(object sender, MouseButtonEventArgs e) => ApplyColor("#00FF88");
+        private void Color_Cyan(object sender, MouseButtonEventArgs e) => ApplyColor("#00E5FF");
+        private void Color_White(object sender, MouseButtonEventArgs e) => ApplyColor("#FFFFFF");
+        private void Color_Red(object sender, MouseButtonEventArgs e) => ApplyColor("#FF3366");
+
+        private void ApplyColor(string hex)
         {
             if (_profiles == null || _activeProfileIndex < 0 || _activeProfileIndex >= _profiles.Count) return;
             var prof = _profiles[_activeProfileIndex];
@@ -372,94 +388,62 @@ namespace CrosshairFree
             SaveCurrentSettings();
         }
 
-        private void UpdateColorIndicators(string hex)
+        private void UpdateColorIndicators(string activeHex)
         {
-            if (CardColorGreen == null || IndicatorColorGreen == null ||
-                CardColorCyan == null || IndicatorColorCyan == null ||
-                CardColorWhite == null || IndicatorColorWhite == null ||
-                CardColorRed == null || IndicatorColorRed == null ||
-                CardColorPicker == null || IndicatorColorPicker == null)
+            string clean = activeHex.ToUpperInvariant();
+            if (IndicatorColorGreen != null) IndicatorColorGreen.Visibility = clean == "#00FF88" ? Visibility.Visible : Visibility.Collapsed;
+            if (IndicatorColorCyan != null) IndicatorColorCyan.Visibility = clean == "#00E5FF" ? Visibility.Visible : Visibility.Collapsed;
+            if (IndicatorColorWhite != null) IndicatorColorWhite.Visibility = clean == "#FFFFFF" ? Visibility.Visible : Visibility.Collapsed;
+            if (IndicatorColorRed != null) IndicatorColorRed.Visibility = clean == "#FF3366" ? Visibility.Visible : Visibility.Collapsed;
+            if (IndicatorColorPicker != null)
             {
-                return;
+                bool isPreset = clean == "#00FF88" || clean == "#00E5FF" || clean == "#FFFFFF" || clean == "#FF3366";
+                IndicatorColorPicker.Visibility = isPreset ? Visibility.Collapsed : Visibility.Visible;
             }
-
-            var blueBrush = new SolidColorBrush(Color.FromRgb(0, 132, 255));
-            var transparentBrush = Brushes.Transparent;
-
-            string norm = hex.Trim().ToUpperInvariant();
-
-            bool isGreen = norm == "#00F576" || norm == "#00FF88" || norm == "#00E676";
-            bool isCyan = norm == "#00E5FF" || norm == "#00D8F6" || norm == "#00FFFF";
-            bool isWhite = norm == "#FFFFFF" || norm == "#FFFFFFFF";
-            bool isRed = norm == "#FF2600" || norm == "#FF0000" || norm == "#FF3319";
-            bool isPicker = !isGreen && !isCyan && !isWhite && !isRed;
-
-            CardColorGreen.BorderBrush = isGreen ? blueBrush : transparentBrush;
-            IndicatorColorGreen.Visibility = isGreen ? Visibility.Visible : Visibility.Collapsed;
-
-            CardColorCyan.BorderBrush = isCyan ? blueBrush : transparentBrush;
-            IndicatorColorCyan.Visibility = isCyan ? Visibility.Visible : Visibility.Collapsed;
-
-            CardColorWhite.BorderBrush = isWhite ? blueBrush : transparentBrush;
-            IndicatorColorWhite.Visibility = isWhite ? Visibility.Visible : Visibility.Collapsed;
-
-            CardColorRed.BorderBrush = isRed ? blueBrush : transparentBrush;
-            IndicatorColorRed.Visibility = isRed ? Visibility.Visible : Visibility.Collapsed;
-
-            CardColorPicker.BorderBrush = isPicker ? blueBrush : transparentBrush;
-            IndicatorColorPicker.Visibility = isPicker ? Visibility.Visible : Visibility.Collapsed;
         }
-
-        private void Color_Green(object sender, MouseButtonEventArgs e) => SetColor("#00F576");
-        private void Color_Cyan(object sender, MouseButtonEventArgs e) => SetColor("#00E5FF");
-        private void Color_White(object sender, MouseButtonEventArgs e) => SetColor("#FFFFFF");
-        private void Color_Red(object sender, MouseButtonEventArgs e) => SetColor("#FF2600");
 
         private void Color_Picker(object sender, MouseButtonEventArgs e)
         {
+            if (_profiles == null || _activeProfileIndex < 0 || _activeProfileIndex >= _profiles.Count) return;
+            var prof = _profiles[_activeProfileIndex];
+
             try
             {
-                string curHex = "#00FF88";
-                if (_profiles != null && _activeProfileIndex >= 0 && _activeProfileIndex < _profiles.Count)
-                {
-                    curHex = _profiles[_activeProfileIndex].ColorHex;
-                }
-
-                var picker = new Views.ColorPickerWindow(curHex)
+                var dlg = new Views.ColorPickerWindow(prof.ColorHex)
                 {
                     Owner = this
                 };
 
-                if (picker.ShowDialog() == true)
+                if (dlg.ShowDialog() == true)
                 {
-                    SetColor(picker.SelectedColorHex);
+                    ApplyColor(dlg.SelectedColorHex);
                 }
             }
             catch { }
         }
 
-        // --- BACKGROUND CONTRAST PREVIEWS ---
+        // --- BACKGROUND PREVIEWS ---
         private void BgDark_Click(object sender, RoutedEventArgs e)
         {
-            PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(18, 18, 20));
+            if (PreviewViewport != null) PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(18, 18, 20));
             SetIndicator(dark: true, sky: false, grass: false, snow: false);
         }
 
         private void BgSky_Click(object sender, RoutedEventArgs e)
         {
-            PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(2, 132, 199));
+            if (PreviewViewport != null) PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(2, 132, 199));
             SetIndicator(dark: false, sky: true, grass: false, snow: false);
         }
 
         private void BgGrass_Click(object sender, RoutedEventArgs e)
         {
-            PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(22, 163, 74));
+            if (PreviewViewport != null) PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(22, 163, 74));
             SetIndicator(dark: false, sky: false, grass: true, snow: false);
         }
 
         private void BgSnow_Click(object sender, RoutedEventArgs e)
         {
-            PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(226, 232, 240));
+            if (PreviewViewport != null) PreviewViewport.Background = new SolidColorBrush(Color.FromRgb(248, 250, 252));
             SetIndicator(dark: false, sky: false, grass: false, snow: true);
         }
 
@@ -478,6 +462,12 @@ namespace CrosshairFree
             SaveCurrentSettings();
         }
 
+        private void ChkSystemTray_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_isUpdatingUi) return;
+            SaveCurrentSettings();
+        }
+
         private void BtnToggleCrosshair_Click(object sender, RoutedEventArgs e)
         {
             ToggleOverlay();
@@ -487,9 +477,11 @@ namespace CrosshairFree
         {
             if (_overlay == null) return;
 
-            if (_overlay.Visibility == Visibility.Visible)
+            bool newVisible = !_overlay.IsOverlayVisible;
+            _overlay.SetOverlayVisible(newVisible);
+
+            if (!newVisible)
             {
-                _overlay.Visibility = Visibility.Collapsed;
                 if (TxtStatus != null) TxtStatus.Text = "HIDDEN";
                 if (PillStatus != null)
                 {
@@ -498,7 +490,6 @@ namespace CrosshairFree
             }
             else
             {
-                _overlay.Visibility = Visibility.Visible;
                 _overlay.RepositionAtScreenCenter();
                 _overlay.UpdateConfig(_profiles[_activeProfileIndex]);
                 if (TxtStatus != null) TxtStatus.Text = "ACTIVE";
@@ -506,7 +497,6 @@ namespace CrosshairFree
                 {
                     PillStatus.Background = new SolidColorBrush(Color.FromRgb(0, 210, 135));
                 }
-                EnsureKeyboardHook();
             }
         }
 
@@ -523,7 +513,6 @@ namespace CrosshairFree
                 {
                     _keybinds = dlg.ResultKeybinds;
                     UpdateToggleHotkeyLabel();
-                    EnsureKeyboardHook();
                     SaveCurrentSettings();
                 }
             }
@@ -538,6 +527,7 @@ namespace CrosshairFree
                 var settings = new AppSettings
                 {
                     AlwaysOnTop = ChkTopmost?.IsChecked == true,
+                    SystemTray = ChkSystemTray?.IsChecked == true,
                     Keybinds = _keybinds,
                     Profiles = _profiles
                 };
@@ -546,14 +536,168 @@ namespace CrosshairFree
             catch { }
         }
 
+        private MenuItem CreateTrayMenuItem(string text, string iconType, Action onClick, bool isChecked = false)
+        {
+            var item = new MenuItem
+            {
+                Header = text,
+                Style = (Style)FindResource("DarkTrayMenuItemStyle")
+            };
+
+            item.Icon = CreateVectorMenuIcon(iconType, isChecked);
+            item.Click += (s, e) => onClick();
+            return item;
+        }
+
+        private static FrameworkElement CreateVectorMenuIcon(string type, bool isChecked)
+        {
+            var grid = new Grid
+            {
+                Width = 14,
+                Height = 14,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            switch (type)
+            {
+                case "open":
+                    // Crisp Window Icon (App frame)
+                    var pathOpen = new System.Windows.Shapes.Path
+                    {
+                        Data = Geometry.Parse("M 1 2.5 H 13 V 11.5 H 1 Z M 1 5.5 H 13 M 4 2.5 V 5.5"),
+                        Stroke = new SolidColorBrush(Color.FromRgb(165, 165, 178)),
+                        StrokeThickness = 1.2,
+                        Stretch = Stretch.Uniform,
+                        Width = 12,
+                        Height = 11
+                    };
+                    grid.Children.Add(pathOpen);
+                    break;
+
+                case "toggle":
+                    // Precision Crosshair Reticle Icon
+                    var pathCross = new System.Windows.Shapes.Path
+                    {
+                        Data = Geometry.Parse("M 6 0.5 V 3.5 M 6 8.5 V 11.5 M 0.5 6 H 3.5 M 8.5 6 H 11.5 M 6 3.5 A 2.5 2.5 0 1 0 6 8.5 A 2.5 2.5 0 1 0 6 3.5"),
+                        Stroke = new SolidColorBrush(Color.FromRgb(0, 229, 255)),
+                        StrokeThickness = 1.2,
+                        Stretch = Stretch.Uniform,
+                        Width = 12,
+                        Height = 12
+                    };
+                    grid.Children.Add(pathCross);
+                    break;
+
+                case "check":
+                    if (isChecked)
+                    {
+                        var pathCheck = new System.Windows.Shapes.Path
+                        {
+                            Data = Geometry.Parse("M 1 6 L 4.5 9.5 L 11 2"),
+                            Stroke = new SolidColorBrush(Color.FromRgb(0, 132, 255)),
+                            StrokeThickness = 1.8,
+                            StrokeStartLineCap = PenLineCap.Round,
+                            StrokeEndLineCap = PenLineCap.Round,
+                            StrokeLineJoin = PenLineJoin.Round,
+                            Stretch = Stretch.Uniform,
+                            Width = 11,
+                            Height = 9
+                        };
+                        grid.Children.Add(pathCheck);
+                    }
+                    break;
+
+                case "exit":
+                    // Red Power / Exit Icon
+                    var pathExit = new System.Windows.Shapes.Path
+                    {
+                        Data = Geometry.Parse("M 6 1 V 5.5 M 2.5 3 A 4.2 4.2 0 1 0 9.5 3"),
+                        Stroke = new SolidColorBrush(Color.FromRgb(239, 68, 68)),
+                        StrokeThickness = 1.4,
+                        StrokeStartLineCap = PenLineCap.Round,
+                        StrokeEndLineCap = PenLineCap.Round,
+                        Stretch = Stretch.Uniform,
+                        Width = 12,
+                        Height = 12
+                    };
+                    grid.Children.Add(pathExit);
+                    break;
+            }
+
+            return grid;
+        }
+
+        private void ShowDarkTrayContextMenu(int screenX, int screenY)
+        {
+            var menu = new ContextMenu
+            {
+                Style = (Style)FindResource("DarkTrayContextMenuStyle"),
+                Placement = System.Windows.Controls.Primitives.PlacementMode.AbsolutePoint,
+                HorizontalOffset = screenX,
+                VerticalOffset = screenY
+            };
+
+            // 1. Open Crosshair Free
+            menu.Items.Add(CreateTrayMenuItem("Open Crosshair Free", "open", () =>
+            {
+                Show();
+                WindowState = WindowState.Normal;
+                Activate();
+                Focus();
+            }));
+
+            // 2. Toggle Crosshair (F8)
+            string keyName = _keybinds != null ? KeybindHelper.GetKeyName(_keybinds.ToggleOverlayKey) : "F8";
+            menu.Items.Add(CreateTrayMenuItem($"Toggle Crosshair ({keyName})", "toggle", () => ToggleOverlay()));
+
+            menu.Items.Add(new Separator { Style = (Style)FindResource("DarkTraySeparatorStyle") });
+
+            // 3. Assault Rifle Profile
+            menu.Items.Add(CreateTrayMenuItem("Assault Rifle Profile", "check", () => SwitchWeapon(0), isChecked: _activeProfileIndex == 0));
+
+            // 4. Shotgun Profile
+            menu.Items.Add(CreateTrayMenuItem("Shotgun Profile", "check", () => SwitchWeapon(1), isChecked: _activeProfileIndex == 1));
+
+            menu.Items.Add(new Separator { Style = (Style)FindResource("DarkTraySeparatorStyle") });
+
+            // 5. Always on Top
+            menu.Items.Add(CreateTrayMenuItem("Always on Top", "check", () =>
+            {
+                if (ChkTopmost != null) ChkTopmost.IsChecked = !ChkTopmost.IsChecked;
+            }, isChecked: Topmost));
+
+            menu.Items.Add(new Separator { Style = (Style)FindResource("DarkTraySeparatorStyle") });
+
+            // 6. Exit Crosshair Free
+            menu.Items.Add(CreateTrayMenuItem("Exit Crosshair Free", "exit", () =>
+            {
+                _isRealExit = true;
+                Close();
+            }));
+
+            var handle = new WindowInteropHelper(this).Handle;
+            NativeWin32.SetForegroundWindow(handle);
+
+            menu.IsOpen = true;
+        }
+
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!_isRealExit && ChkSystemTray?.IsChecked == true)
+            {
+                e.Cancel = true;
+                Hide();
+                NativeWin32.TrimWorkingSet();
+                return;
+            }
+        }
+
         private void MainWindow_Closed(object? sender, EventArgs e)
         {
             SaveCurrentSettings();
-            if (_keyboardHookId != IntPtr.Zero)
-            {
-                NativeWin32.UnhookWindowsHookEx(_keyboardHookId);
-                _keyboardHookId = IntPtr.Zero;
-            }
+            _trayService.Dispose();
+            KeyboardHookService.Instance.Stop();
             _overlay?.Close();
             Application.Current.Shutdown();
         }

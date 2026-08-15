@@ -103,6 +103,7 @@ namespace CrosshairFree.Models
     public class AppSettings
     {
         public bool AlwaysOnTop { get; set; } = true;
+        public bool SystemTray { get; set; } = true;
         public KeybindConfig Keybinds { get; set; } = new KeybindConfig();
         public List<CrosshairConfig> Profiles { get; set; } = new List<CrosshairConfig>();
     }

@@ -11,7 +11,8 @@ namespace CrosshairFree.Rendering
     {
         private CrosshairConfig _config = new CrosshairConfig();
         private IntPtr _hwnd = IntPtr.Zero;
-        private DrawingGroup _cachedDrawingGroup = new DrawingGroup();
+        private DrawingGroup? _cachedDrawingGroup = new DrawingGroup();
+        public bool IsOverlayVisible { get; private set; } = true;
 
         public CrosshairOverlayWindow()
         {
@@ -59,10 +60,23 @@ namespace CrosshairFree.Rendering
             }
         }
 
+        public void SetOverlayVisible(bool visible)
+        {
+            IsOverlayVisible = visible;
+            UpdateConfig(_config);
+        }
+
         public void UpdateConfig(CrosshairConfig config)
         {
             _config = config;
             RepositionAtScreenCenter();
+
+            if (!IsOverlayVisible)
+            {
+                _cachedDrawingGroup = null;
+                InvalidateVisual();
+                return;
+            }
 
             // Pre-bake and freeze drawing visual: crisp vector anti-aliased geometry with 0 CPU overhead
             var dg = new DrawingGroup();
@@ -81,7 +95,7 @@ namespace CrosshairFree.Rendering
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
-            if (_cachedDrawingGroup != null)
+            if (IsOverlayVisible && _cachedDrawingGroup != null)
             {
                 drawingContext.DrawDrawing(_cachedDrawingGroup);
             }

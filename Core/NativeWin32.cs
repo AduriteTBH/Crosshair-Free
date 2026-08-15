@@ -99,6 +99,12 @@ namespace CrosshairFree.Core
         [DllImport("psapi.dll")]
         public static extern int EmptyWorkingSet(IntPtr hwProc);
 
+        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr ExtractAssociatedIcon(IntPtr hInst, string lpIconPath, out ushort lpiIcon);
+
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
         public static void EnableImmersiveDarkMode(IntPtr hwnd)
         {
             if (hwnd == IntPtr.Zero) return;
