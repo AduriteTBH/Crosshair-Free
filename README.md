@@ -6,9 +6,9 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0084FF.svg?style=for-the-badge&logo=windows)](https://github.com)
 [![RAM Usage](https://img.shields.io/badge/RAM%20Usage-~0.2%20MB-00D287.svg?style=for-the-badge)](https://github.com)
 [![Price](https://img.shields.io/badge/Price-100%25%20FREE-FF3366.svg?style=for-the-badge)](https://github.com)
-[![Status](https://img.shields.io/badge/Version-v1.0.1-60CDFF.svg?style=for-the-badge)](https://github.com)
+[![Status](https://img.shields.io/badge/Version-v1.0.2-60CDFF.svg?style=for-the-badge)](https://github.com)
 
-*A completely free, open, and bloat-free alternative to paid crosshair tools like Crosshair X, running at **only 0.2 MB - 5 MB of RAM** with **0.00ms input latency**.*
+*A completely free, open, and bloat-free alternative to paid crosshair tools like Crosshair X, running at **only 0.2 MB - 3 MB of RAM** with **0.00ms input latency**.*
 
 ---
 
@@ -78,7 +78,7 @@ Most commercial crosshair apps (like Crosshair X) charge money, require Steam/su
 
 ## 🚀 Quick Start
 
-1. Download **`CrosshairFree.exe`** from the [Releases](https://github.com/AduriteTBH/Crosshair-Free/releases) tab.
+1. Download **`CrosshairFree.exe`** from the [Releases](https://github.com) tab.
 2. Double-click to launch (no setup or installation required).
 3. Pick your desired crosshairs for AR and Shotgun, and customize your keybinds.
 4. Jump into your favorite game and enjoy 0-lag precision!
