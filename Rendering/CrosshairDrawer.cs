@@ -27,7 +27,7 @@ namespace CrosshairFree.Rendering
             double gap = Math.Max(0, config.Gap);
             double size = Math.Max(1, config.Size);
 
-            // 1. Center Dot (if enabled or if DotOnly style)
+            // 1. Center Dot (if enabled or if DotOnly / Bullseye)
             bool shouldDrawCenterDot = config.HasCenterDot || config.Style == CrosshairStyle.DotOnly;
             if (shouldDrawCenterDot && config.CenterDotSize > 0)
             {
@@ -48,6 +48,12 @@ namespace CrosshairFree.Rendering
                     DrawCrossLines(dc, centerX, centerY, gap, size, mainPen, outlinePen, config.HasOutline, top: true, bottom: true, left: true, right: true);
                     break;
 
+                case CrosshairStyle.Cs2Precision:
+                    // CS2 Pro Box-Cross: Tight inner precision box with 4 directional extended cross ticks
+                    DrawBoxSquare(dc, centerX, centerY, gap + (size * 0.35), config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    DrawCrossLines(dc, centerX, centerY, gap + (size * 0.35) + 2, size * 0.65, mainPen, outlinePen, config.HasOutline, top: true, bottom: true, left: true, right: true);
+                    break;
+
                 case CrosshairStyle.ShotgunCircle:
                 case CrosshairStyle.DotWithCircle:
                     DrawCircle(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
@@ -62,9 +68,18 @@ namespace CrosshairFree.Rendering
                     DrawPolygon(dc, centerX, centerY, gap + size, 8, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
                     break;
 
+                case CrosshairStyle.ShotgunHexagon:
+                    DrawPolygon(dc, centerX, centerY, gap + size, 6, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    break;
+
                 case CrosshairStyle.ShotgunDoubleRing:
                     DrawCircle(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
                     DrawCircle(dc, centerX, centerY, (gap + size) * 0.55, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    break;
+
+                case CrosshairStyle.ShotgunCrossRing:
+                    DrawCircle(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    DrawCrossLines(dc, centerX, centerY, gap * 0.4, (gap + size) * 0.6, mainPen, outlinePen, config.HasOutline, top: true, bottom: true, left: true, right: true);
                     break;
 
                 case CrosshairStyle.ShotgunDiamondBloom:
@@ -95,6 +110,10 @@ namespace CrosshairFree.Rendering
                     DrawChevron(dc, centerX, centerY, gap, size, mainPen, outlinePen, config.HasOutline);
                     break;
 
+                case CrosshairStyle.DoubleChevron:
+                    DrawDoubleChevron(dc, centerX, centerY, gap, size, mainPen, outlinePen, config.HasOutline);
+                    break;
+
                 case CrosshairStyle.Diamond:
                     DrawDiamond(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
                     break;
@@ -119,6 +138,11 @@ namespace CrosshairFree.Rendering
                     DrawApexTriDot(dc, centerX, centerY, gap + size, config.CenterDotSize, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
                     break;
 
+                case CrosshairStyle.OverwatchTriTick:
+                    DrawCircle(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    DrawOverwatchTicks(dc, centerX, centerY, gap + size, size * 0.45, mainPen, outlinePen, config.HasOutline);
+                    break;
+
                 case CrosshairStyle.CyberDot:
                     DrawCircle(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
                     DrawCrossLines(dc, centerX, centerY, gap + size + 2, size * 0.4, mainPen, outlinePen, config.HasOutline, top: true, bottom: true, left: true, right: true);
@@ -127,6 +151,11 @@ namespace CrosshairFree.Rendering
                 case CrosshairStyle.SniperCrosshair:
                     DrawCrossLines(dc, centerX, centerY, gap, size * 1.5, mainPen, outlinePen, config.HasOutline, top: true, bottom: true, left: true, right: true);
                     DrawMilDots(dc, centerX, centerY, gap, size * 1.5, Math.Max(2.5, config.CenterDotSize), mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    break;
+
+                case CrosshairStyle.Bullseye:
+                    DrawCircle(dc, centerX, centerY, gap + size, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
+                    DrawCircle(dc, centerX, centerY, (gap + size) * 0.5, config.Thickness, mainBrush, outlineBrush, config.HasOutline, config.OutlineThickness);
                     break;
 
                 case CrosshairStyle.Heart:
@@ -179,7 +208,6 @@ namespace CrosshairFree.Rendering
             double half = gap + len;
             double corner = Math.Max(3, len * 0.4);
 
-            // 4 Corner brackets: Top-Left, Top-Right, Bottom-Left, Bottom-Right
             if (outline)
             {
                 // Top-Left corner
@@ -234,19 +262,46 @@ namespace CrosshairFree.Rendering
             dc.DrawLine(mainPen, pApex, pRight);
         }
 
+        private static void DrawDoubleChevron(DrawingContext dc, double cx, double cy, double gap, double size, Pen mainPen, Pen outlinePen, bool outline)
+        {
+            double wingW = Math.Max(3.5, size * 0.85);
+            double wingH = Math.Max(3.5, size * 0.6);
+            double separation = Math.Max(5.0, size * 0.7);
+
+            // Upper Chevron
+            Point p1Apex = new Point(cx, cy - gap - separation);
+            Point p1Left = new Point(cx - wingW, cy - gap - separation + wingH);
+            Point p1Right = new Point(cx + wingW, cy - gap - separation + wingH);
+
+            // Lower Chevron
+            Point p2Apex = new Point(cx, cy - gap);
+            Point p2Left = new Point(cx - wingW, cy - gap + wingH);
+            Point p2Right = new Point(cx + wingW, cy - gap + wingH);
+
+            if (outline)
+            {
+                dc.DrawLine(outlinePen, p1Left, p1Apex);
+                dc.DrawLine(outlinePen, p1Apex, p1Right);
+                dc.DrawLine(outlinePen, p2Left, p2Apex);
+                dc.DrawLine(outlinePen, p2Apex, p2Right);
+            }
+
+            dc.DrawLine(mainPen, p1Left, p1Apex);
+            dc.DrawLine(mainPen, p1Apex, p1Right);
+            dc.DrawLine(mainPen, p2Left, p2Apex);
+            dc.DrawLine(mainPen, p2Apex, p2Right);
+        }
+
         private static void DrawTriPoint(DrawingContext dc, double cx, double cy, double gap, double size, Pen mainPen, Pen outlinePen, bool outline)
         {
-            // Top arm (Straight UP)
             Point pTopStart = new Point(cx, cy - gap);
             Point pTopEnd = new Point(cx, cy - gap - size);
 
-            // Bottom-Left arm (120 deg)
             double cos30 = 0.866025;
             double sin30 = 0.5;
             Point pLStart = new Point(cx - gap * cos30, cy + gap * sin30);
             Point pLEnd = new Point(cx - (gap + size) * cos30, cy + (gap + size) * sin30);
 
-            // Bottom-Right arm (120 deg)
             Point pRStart = new Point(cx + gap * cos30, cy + gap * sin30);
             Point pREnd = new Point(cx + (gap + size) * cos30, cy + (gap + size) * sin30);
 
@@ -260,6 +315,29 @@ namespace CrosshairFree.Rendering
             dc.DrawLine(mainPen, pTopStart, pTopEnd);
             dc.DrawLine(mainPen, pLStart, pLEnd);
             dc.DrawLine(mainPen, pRStart, pREnd);
+        }
+
+        private static void DrawOverwatchTicks(DrawingContext dc, double cx, double cy, double radius, double tickLen, Pen mainPen, Pen outlinePen, bool outline)
+        {
+            Point pL1 = new Point(cx - radius, cy);
+            Point pL2 = new Point(cx - radius - tickLen, cy);
+
+            Point pR1 = new Point(cx + radius, cy);
+            Point pR2 = new Point(cx + radius + tickLen, cy);
+
+            Point pB1 = new Point(cx, cy + radius);
+            Point pB2 = new Point(cx, cy + radius + tickLen);
+
+            if (outline)
+            {
+                dc.DrawLine(outlinePen, pL1, pL2);
+                dc.DrawLine(outlinePen, pR1, pR2);
+                dc.DrawLine(outlinePen, pB1, pB2);
+            }
+
+            dc.DrawLine(mainPen, pL1, pL2);
+            dc.DrawLine(mainPen, pR1, pR2);
+            dc.DrawLine(mainPen, pB1, pB2);
         }
 
         private static void DrawDiamond(DrawingContext dc, double cx, double cy, double radius, double thickness, Brush mainBrush, Brush outlineBrush, bool outline, double outlineThick)
@@ -305,7 +383,7 @@ namespace CrosshairFree.Rendering
             if (radius <= 0 || sides < 3) return;
             PathGeometry geom = new PathGeometry();
             double step = (Math.PI * 2) / sides;
-            double offsetAngle = Math.PI / 8.0; // Rotate octagon so top is flat
+            double offsetAngle = Math.PI / sides;
             Point start = new Point(cx + radius * Math.Cos(offsetAngle), cy + radius * Math.Sin(offsetAngle));
             PathFigure figure = new PathFigure { StartPoint = start, IsClosed = true };
 
@@ -369,7 +447,7 @@ namespace CrosshairFree.Rendering
         {
             double r = Math.Max(1.5, dotSize * 0.5);
             Point[] pts = {
-                new Point(cx, cy - dist),
+                new Point(cx - dist, cy - dist),
                 new Point(cx, cy + dist),
                 new Point(cx - dist, cy),
                 new Point(cx + dist, cy)

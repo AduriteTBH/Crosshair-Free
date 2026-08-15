@@ -48,17 +48,22 @@ namespace CrosshairFree
                 Topmost = savedSettings.AlwaysOnTop;
             }
 
-            // Periodic aggressive working set trimmer (forces RAM to 0.3MB)
+            // Periodic heartbeat: auto-heals keyboard hook & trims working set
             _memTrimTimer = new DispatcherTimer(DispatcherPriority.Background)
             {
-                Interval = TimeSpan.FromMilliseconds(1500)
+                Interval = TimeSpan.FromSeconds(3)
             };
-            _memTrimTimer.Tick += (s, e) => NativeWin32.TrimWorkingSet();
+            _memTrimTimer.Tick += (s, e) =>
+            {
+                EnsureKeyboardHook();
+                NativeWin32.TrimWorkingSet();
+            };
             _memTrimTimer.Start();
 
             Loaded += MainWindow_Loaded;
             Closed += MainWindow_Closed;
             StateChanged += MainWindow_StateChanged;
+            Activated += (s, e) => EnsureKeyboardHook();
             Deactivated += (s, e) => NativeWin32.TrimWorkingSet();
             LostFocus += (s, e) => NativeWin32.TrimWorkingSet();
             MouseLeave += (s, e) => NativeWin32.TrimWorkingSet();
@@ -76,6 +81,24 @@ namespace CrosshairFree
             catch { }
         }
 
+        private void EnsureKeyboardHook()
+        {
+            try
+            {
+                _keyboardHookId = NativeWin32.StartPassiveKeyboardHook(_keyboardHookProc);
+            }
+            catch { }
+        }
+
+        private void UpdateToggleHotkeyLabel()
+        {
+            if (BtnToggleCrosshair != null && _keybinds != null)
+            {
+                string keyName = KeybindHelper.GetKeyName(_keybinds.ToggleOverlayKey);
+                BtnToggleCrosshair.Content = $"TOGGLE ({keyName})";
+            }
+        }
+
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             try
@@ -84,7 +107,7 @@ namespace CrosshairFree
                 Focus();
 
                 // Start passive non-blocking global keyboard hook (0.00ms latency)
-                _keyboardHookId = NativeWin32.StartPassiveKeyboardHook(_keyboardHookProc);
+                EnsureKeyboardHook();
 
                 // Launch Crosshair Overlay Window
                 _overlay = new CrosshairOverlayWindow();
@@ -92,6 +115,7 @@ namespace CrosshairFree
                 _overlay.UpdateConfig(_profiles[_activeProfileIndex]);
 
                 UpdateUiForActiveWeapon();
+                UpdateToggleHotkeyLabel();
 
                 _isUpdatingUi = false;
 
@@ -476,11 +500,13 @@ namespace CrosshairFree
             {
                 _overlay.Visibility = Visibility.Visible;
                 _overlay.RepositionAtScreenCenter();
+                _overlay.UpdateConfig(_profiles[_activeProfileIndex]);
                 if (TxtStatus != null) TxtStatus.Text = "ACTIVE";
                 if (PillStatus != null)
                 {
                     PillStatus.Background = new SolidColorBrush(Color.FromRgb(0, 210, 135));
                 }
+                EnsureKeyboardHook();
             }
         }
 
@@ -496,6 +522,8 @@ namespace CrosshairFree
                 if (dlg.ShowDialog() == true)
                 {
                     _keybinds = dlg.ResultKeybinds;
+                    UpdateToggleHotkeyLabel();
+                    EnsureKeyboardHook();
                     SaveCurrentSettings();
                 }
             }

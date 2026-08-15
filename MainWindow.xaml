@@ -396,6 +396,88 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Snow Preview Button Style (Crisp Light Background with Electric Blue Border Highlight) -->
+        <Style x:Key="SnowPreviewBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="#F1F5F9" BorderBrush="#CBD5E1" BorderThickness="1.5" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#FFFFFF"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#0084FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#E2E8F0"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#0070D8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sky Preview Button Style -->
+        <Style x:Key="SkyPreviewBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="#0284C7" BorderBrush="#0284C7" BorderThickness="1.5" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#0396E3"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#60CDFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#026FA8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Grass Preview Button Style -->
+        <Style x:Key="GrassPreviewBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="0,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="#16A34A" BorderBrush="#16A34A" BorderThickness="1.5" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#1BBF57"/>
+                                <Setter TargetName="BtnBorder" Property="BorderBrush" Value="#4ADE80"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Background" Value="#128A3E"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid x:Name="RootLayoutGrid" Margin="16,14,16,16">
@@ -579,19 +661,19 @@
 
                             <!-- Sky Chip -->
                             <StackPanel Grid.Column="1" Margin="2,0,2,0">
-                                <Button x:Name="BtnBgSky" Content="Sky" Style="{StaticResource DarkActionBtn}" Background="#0284C7" BorderBrush="#0284C7" Foreground="#FFFFFF" Click="BgSky_Click"/>
+                                <Button x:Name="BtnBgSky" Content="Sky" Style="{StaticResource SkyPreviewBtn}" Click="BgSky_Click"/>
                                 <Border x:Name="IndicatorSky" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Collapsed"/>
                             </StackPanel>
 
                             <!-- Grass Chip -->
                             <StackPanel Grid.Column="2" Margin="2,0,2,0">
-                                <Button x:Name="BtnBgGrass" Content="Grass" Style="{StaticResource DarkActionBtn}" Background="#16A34A" BorderBrush="#16A34A" Foreground="#FFFFFF" Click="BgGrass_Click"/>
+                                <Button x:Name="BtnBgGrass" Content="Grass" Style="{StaticResource GrassPreviewBtn}" Click="BgGrass_Click"/>
                                 <Border x:Name="IndicatorGrass" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Collapsed"/>
                             </StackPanel>
 
                             <!-- Snow Chip -->
                             <StackPanel Grid.Column="3" Margin="4,0,0,0">
-                                <Button x:Name="BtnBgSnow" Content="Snow" Style="{StaticResource DarkActionBtn}" Background="#E2E8F0" BorderBrush="#E2E8F0" Foreground="#000000" FontWeight="Bold" Click="BgSnow_Click"/>
+                                <Button x:Name="BtnBgSnow" Content="Snow" Style="{StaticResource SnowPreviewBtn}" Click="BgSnow_Click"/>
                                 <Border x:Name="IndicatorSnow" Height="2" Background="#0084FF" Margin="6,3,6,0" Visibility="Collapsed"/>
                             </StackPanel>
                         </Grid>
@@ -926,6 +1008,91 @@
                                             </Grid>
                                         </Border>
                                         <TextBlock Text="Heart Reticle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 25. Shotgun Cross-Ring -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="13" Height="13" Stroke="#00FF88" StrokeThickness="1.2"/>
+                                                <Rectangle Width="1.2" Height="9" Fill="#00E5FF"/>
+                                                <Rectangle Width="9" Height="1.2" Fill="#00E5FF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun Cross-Ring" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 26. Shotgun Hexagon Spread -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Polygon Points="6,0 12,3.5 12,10.5 6,14 0,10.5 0,3.5" Stroke="#00FF88" StrokeThickness="1.2" Stretch="Uniform" Width="13" Height="13"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#FFFFFF"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Shotgun Hexagon Spread" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 27. CS2 Static Precision -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Rectangle Width="7" Height="7" Stroke="#00FF88" StrokeThickness="1.2"/>
+                                                <Rectangle Width="1.2" Height="3.5" Fill="#00E5FF" Margin="0,-12,0,0"/>
+                                                <Rectangle Width="1.2" Height="3.5" Fill="#00E5FF" Margin="0,12,0,0"/>
+                                                <Rectangle Width="3.5" Height="1.2" Fill="#00E5FF" Margin="-12,0,0,0"/>
+                                                <Rectangle Width="3.5" Height="1.2" Fill="#00E5FF" Margin="12,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="CS2 Static Precision" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 28. Overwatch Tri-Tick Circle -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="11" Height="11" Stroke="#00FF88" StrokeThickness="1.2"/>
+                                                <Rectangle Width="3" Height="1.2" Fill="#00E5FF" Margin="-11,0,0,0"/>
+                                                <Rectangle Width="3" Height="1.2" Fill="#00E5FF" Margin="11,0,0,0"/>
+                                                <Rectangle Width="1.2" Height="3" Fill="#00E5FF" Margin="0,11,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Overwatch Tri-Tick Circle" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 29. Double Tactical Chevron -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path Data="M 1 5 L 6 1 L 11 5" Stroke="#00FF88" StrokeThickness="1.5" Stretch="Uniform" Width="10" Height="5" Margin="0,-5,0,0"/>
+                                                <Path Data="M 1 5 L 6 1 L 11 5" Stroke="#00E5FF" StrokeThickness="1.5" Stretch="Uniform" Width="10" Height="5" Margin="0,5,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Double Tactical Chevron" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </ComboBoxItem>
+
+                                <!-- 30. Target Bullseye -->
+                                <ComboBoxItem>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="20" Height="20" Background="#101014" BorderBrush="#262630" BorderThickness="1" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center">
+                                            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Ellipse Width="14" Height="14" Stroke="#00FF88" StrokeThickness="1"/>
+                                                <Ellipse Width="8" Height="8" Stroke="#00E5FF" StrokeThickness="1"/>
+                                                <Ellipse Width="2.5" Height="2.5" Fill="#FF3366"/>
+                                            </Grid>
+                                        </Border>
+                                        <TextBlock Text="Target Bullseye" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </ComboBoxItem>
 

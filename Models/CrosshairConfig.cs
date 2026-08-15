@@ -31,7 +31,13 @@ namespace CrosshairFree.Models
         ValorantClassic = 20,
         CyberDot = 21,
         SniperCrosshair = 22,
-        Heart = 23
+        Heart = 23,
+        ShotgunCrossRing = 24,
+        ShotgunHexagon = 25,
+        Cs2Precision = 26,
+        OverwatchTriTick = 27,
+        DoubleChevron = 28,
+        Bullseye = 29
     }
 
     public class CrosshairConfig

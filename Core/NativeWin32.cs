@@ -35,11 +35,11 @@ namespace CrosshairFree.Core
         // DWM Dark Mode Constants
         public const int DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
         public const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-        public const int DWMWA_BORDER_COLOR = 34;
-        public const int DWMWA_CAPTION_COLOR = 35;
-        public const int DWMWA_TEXT_COLOR = 36;
 
         public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        private static LowLevelKeyboardProc? _pinnedHookProc;
+        private static IntPtr _currentHookId = IntPtr.Zero;
 
         [StructLayout(LayoutKind.Sequential)]
         public struct CHOOSECOLOR
@@ -96,6 +96,9 @@ namespace CrosshairFree.Core
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetProcessWorkingSetSize(IntPtr hProcess, IntPtr dwMinimumWorkingSetSize, IntPtr dwMaximumWorkingSetSize);
 
+        [DllImport("psapi.dll")]
+        public static extern int EmptyWorkingSet(IntPtr hwProc);
+
         public static void EnableImmersiveDarkMode(IntPtr hwnd)
         {
             if (hwnd == IntPtr.Zero) return;
@@ -112,44 +115,11 @@ namespace CrosshairFree.Core
             catch { }
         }
 
-        public static bool ShowColorPicker(IntPtr ownerHwnd, ref byte r, ref byte g, ref byte b)
-        {
-            int initialColor = r | (g << 8) | (b << 16);
-            GCHandle handle = GCHandle.Alloc(_customColors, GCHandleType.Pinned);
-            try
-            {
-                var cc = new CHOOSECOLOR();
-                cc.lStructSize = Marshal.SizeOf(typeof(CHOOSECOLOR));
-                cc.hwndOwner = ownerHwnd;
-                cc.rgbResult = initialColor;
-                cc.lpCustColors = handle.AddrOfPinnedObject();
-                cc.Flags = CC_FULLOPEN | CC_RGBINIT;
-
-                if (ChooseColor(ref cc))
-                {
-                    r = (byte)(cc.rgbResult & 0xFF);
-                    g = (byte)((cc.rgbResult >> 8) & 0xFF);
-                    b = (byte)((cc.rgbResult >> 16) & 0xFF);
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-            finally
-            {
-                handle.Free();
-            }
-        }
-
         public static void MakeClickThrough(IntPtr hWnd)
         {
             int initialStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
             SetWindowLong(hWnd, GWL_EXSTYLE, initialStyle | WS_EX_TRANSPARENT | WS_EX_LAYERED | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST);
             
-            // Exclude overlay from screen recording/streaming captures if desired
             try
             {
                 SetWindowDisplayAffinity(hWnd, WDA_EXCLUDEFROMCAPTURE);
@@ -168,27 +138,52 @@ namespace CrosshairFree.Core
         {
             try
             {
-                using var curProcess = Process.GetCurrentProcess();
-                using var curModule = curProcess.MainModule;
-                IntPtr hMod = curModule != null ? GetModuleHandle(curModule.ModuleName) : IntPtr.Zero;
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, hMod, 0);
+                _pinnedHookProc = proc; // Permanently root the delegate in static memory
+                if (_currentHookId != IntPtr.Zero)
+                {
+                    UnhookWindowsHookEx(_currentHookId);
+                    _currentHookId = IntPtr.Zero;
+                }
+
+                IntPtr hMod = IntPtr.Zero;
+                try
+                {
+                    using var curProcess = Process.GetCurrentProcess();
+                    using var curModule = curProcess.MainModule;
+                    if (curModule != null)
+                    {
+                        hMod = GetModuleHandle(curModule.ModuleName);
+                    }
+                }
+                catch { }
+
+                _currentHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _pinnedHookProc, hMod, 0);
+                return _currentHookId;
             }
             catch
             {
-                return SetWindowsHookEx(WH_KEYBOARD_LL, proc, IntPtr.Zero, 0);
+                return IntPtr.Zero;
             }
         }
 
-        [DllImport("psapi.dll")]
-        public static extern int EmptyWorkingSet(IntPtr hwProc);
+        public static void StopPassiveKeyboardHook()
+        {
+            try
+            {
+                if (_currentHookId != IntPtr.Zero)
+                {
+                    UnhookWindowsHookEx(_currentHookId);
+                    _currentHookId = IntPtr.Zero;
+                }
+            }
+            catch { }
+        }
 
         public static void TrimWorkingSet()
         {
             try
             {
-                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
-                GC.WaitForPendingFinalizers();
-                GC.Collect(2, GCCollectionMode.Aggressive, true, true);
+                GC.Collect(1, GCCollectionMode.Optimized, false);
                 EmptyWorkingSet(Process.GetCurrentProcess().Handle);
                 SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle, (IntPtr)(-1), (IntPtr)(-1));
             }

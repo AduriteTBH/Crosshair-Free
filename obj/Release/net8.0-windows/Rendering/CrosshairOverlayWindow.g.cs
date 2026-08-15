@@ -51,7 +51,7 @@ namespace CrosshairFree.Rendering {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CrosshairFree;V1.0.0.0;component/rendering/crosshairoverlaywindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CrosshairFree;V1.0.1.0;component/rendering/crosshairoverlaywindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Rendering\CrosshairOverlayWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

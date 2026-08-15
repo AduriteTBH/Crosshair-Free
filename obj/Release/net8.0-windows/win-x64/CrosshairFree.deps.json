@@ -7,7 +7,7 @@
   "targets": {
     ".NETCoreApp,Version=v8.0": {},
     ".NETCoreApp,Version=v8.0/win-x64": {
-      "CrosshairFree/1.0.0.0": {
+      "CrosshairFree/1.0.1.0": {
         "dependencies": {
           "Microsoft.NET.ILLink.Tasks": "8.0.28"
         },
@@ -19,7 +19,7 @@
     }
   },
   "libraries": {
-    "CrosshairFree/1.0.0.0": {
+    "CrosshairFree/1.0.1.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
